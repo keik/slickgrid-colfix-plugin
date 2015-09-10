@@ -1,0 +1,33 @@
+{
+  "name": "slickgrid-colfix-plugin",
+  "homepage": "https://github.com/keik/slickgrid-colfix-plugin",
+  "authors": [
+    {
+      "name": "keik",
+      "email": "k4t0.kei@gmail.com",
+      "url": "keik.info"
+    }
+  ],
+  "description": "SlickGrid plugin to make fixed columns for horizontal scroll.",
+  "main": "dist/slick.colfix.js",
+  "keywords": [
+    "slickgrid",
+    "grid",
+    "plugin"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "src",
+    "test",
+    "tests",
+    "package.json",
+    "screenshots",
+    "examples"
+  ],
+  "dependencies": {
+    "slickgrid": "https://github.com/mleibman/SlickGrid.git#2.1.0"
+  }
+}
