@@ -37,7 +37,8 @@ function ColFix(fixedColId) {
       _fixedColContainerEl = undefined,
       _uid = undefined,
       _originalColumnsDef = undefined,
-      _scrollbarDim = undefined;
+      _scrollbarDim = undefined,
+      _handler = new Slick.EventHandler();
 
   function init(grid) {
     _mainGrid = grid;
@@ -48,10 +49,28 @@ function ColFix(fixedColId) {
     var grids = separateGrid(grid);
     _mainGrid = grids.mainGrid;
     _fixedColGrid = grids.fixedColGrid;
-
     _fixedColContainerEl = _fixedColGrid.getContainerNode();
 
     setFixedColGridWidth();
+
+    _handler.subscribe(_mainGrid['onActiveCellChanged'], function (e, args) {
+      _fixedColGrid['onActiveCellChanged'].notify(args, e, _fixedColGrid);
+    }).subscribe(_mainGrid.onActiveCellChanged, function (e, args) {
+      console.log(this, e, args);
+      // _fixedColGrid.get
+      // _fixedColGrid.getCellNode(args.row, 0).parentNode.classList.add('active');
+      _fixedColGrid.setActiveCell(args.row, 0);
+    }).subscribe(_fixedColGrid.onActiveCellChanged, function (e, args) {
+      console.log(this, e, args);
+      _mainGrid.setActiveCell(args.row, 0);
+    });
+
+    // for (let k in grid) {
+    //   if (k.match(/^on/)) {
+    //     _handler.subscribe(grid[k], trigger.call(_fixedColGrid[k]));
+    //   }
+    // }
+    //
 
     // sticky scroll between each grid
     var gridViewport = grid.getContainerNode().querySelector('.slick-viewport');
