@@ -42,6 +42,21 @@ function ColFix(fixedColId) {
       _originalSetColumns;
 
   function init(grid) {
+
+    // depending on grid option `explicitInitialization`, change a timing of initialization.
+    if (!grid.getOptions()['explicitInitialization']) {
+      initInternal(grid);
+    } else {
+      grid.init = (function(originalInit) {
+        return function() {
+          originalInit();
+          initInternal(grid);
+        };
+      }(grid.init));
+    }
+  }
+
+  function initInternal(grid) {
     // preserve original
     _originalColumnsDef = [].concat(grid.getColumns());
     _originalSetColumns = grid.setColumns;
@@ -130,6 +145,7 @@ function ColFix(fixedColId) {
     fixedColContainer.style.border = computed['border'];
     fixedColContainer.style.height = computed['height'];
     fixedColContainer.style.background = computed['background'];
+    fixedColContainer.style.boxSizing = 'content-box'; // TODO fix conflicted style intelligently
     containerNode.style.width = null;
 
     // structure DOM
@@ -139,6 +155,7 @@ function ColFix(fixedColId) {
     wrapper.appendChild(containerNode);
 
     let fixedColGrid = new Slick.Grid(fixedColContainer, grid.getData(), [], grid.getOptions());
+    fixedColGrid.init();
 
     return {fixedColGrid: fixedColGrid, mainGrid: grid};
   }

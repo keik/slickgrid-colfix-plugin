@@ -12,7 +12,8 @@ var columns = [
 
 var options = {
   enableCellNavigation: true,
-  enableColumnReorder: false
+  enableColumnReorder: false,
+  explicitInitialization: true
 };
 
 var data = [];
@@ -32,3 +33,5 @@ for (var i = 0; i < 500; i++) {
 
 var grid = new Slick.Grid('#my-grid', data, columns, options);
 grid.registerPlugin(new Slick.Plugins.ColFix('col2'));
+
+grid.init();
