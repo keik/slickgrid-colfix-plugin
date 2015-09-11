@@ -30,56 +30,70 @@ $.extend(true, window, {
 function ColFix(fixedColId) {
   let _mainGrid,
       _mainContainerEl,
+      _mainViewportEl,
       _fixedColGrid,
       _fixedColContainerEl,
+      _fixedColViewportEl,
       _uid,
-      _originalColumnsDef,
-      _scrollbarDim,
+      _scrollbarDim = measureScrollbar(),
       _handler = new Slick.EventHandler();
 
-  function init(grid) {
-    _mainGrid = grid;
-    _mainContainerEl = grid.getContainerNode();
-    _uid = _mainGrid.getContainerNode().className.match(/(?: |^)slickgrid_(\d+)(?!\w)/)[1];
-    _originalColumnsDef = [].concat(grid.getColumns());
+  let _originalColumnsDef,
+      _originalSetColumns;
 
-    var grids = separateGrid(grid);
+  function init(grid) {
+    // preserve original
+    _originalColumnsDef = [].concat(grid.getColumns());
+    _originalSetColumns = grid.setColumns;
+
+    // separate grid internally
+    let grids = separateGrid(grid);
     _mainGrid = grids.mainGrid;
+    _mainContainerEl = grid.getContainerNode();
+    _mainViewportEl = _mainContainerEl.querySelector('.slick-viewport');
     _fixedColGrid = grids.fixedColGrid;
     _fixedColContainerEl = _fixedColGrid.getContainerNode();
+    _fixedColViewportEl = _fixedColContainerEl.querySelector('.slick-viewport');
+    _uid = _mainGrid.getContainerNode().className.match(/(?: |^)slickgrid_(\d+)(?!\w)/)[1];
 
-    setFixedColGridWidth();
+    setColumns(_originalColumnsDef);
+
+    // overwrite methods
+    _mainGrid.getColumns = function() {
+      return _originalColumnsDef;
+    };
+    _mainGrid.setColumns = setColumns;
+
+    // no event fired when `autosizeColumns` called, so follow it by advicing below methods with column group resizing.
+    ['invalidate', 'render'].forEach(function(fnName) {
+      _mainGrid[fnName] = (function(origFn) {
+        return function() {
+          origFn(arguments);
+          _fixedColGrid[fnName](arguments);
+        };
+      }(_mainGrid[fnName]));
+    });
 
     _handler
-      .subscribe(_mainGrid['onActiveCellChanged'], function(e, args) {
-        _fixedColGrid['onActiveCellChanged'].notify(args, e, _fixedColGrid);
-      })
-      .subscribe(_mainGrid.onActiveCellChanged, function(e, args) {
-        console.log(this, e, args);
-        // _fixedColGrid.get
-        // _fixedColGrid.getCellNode(args.row, 0).parentNode.classList.add('active');
+    // DEV unused snip
+    // .subscribe(_mainGrid['onActiveCellChanged'], function(e, args) {
+    //   _fixedColGrid['onActiveCellChanged'].notify(args, e, _fixedColGrid);
+    // })
+      .subscribe(_mainGrid.onClick, function(e, args) {
         _fixedColGrid.setActiveCell(args.row, 0);
+        _fixedColGrid.getActiveCellNode().classList.remove('active');
       })
-      .subscribe(_fixedColGrid.onActiveCellChanged, function(e, args) {
-        console.log(this, e, args);
+      .subscribe(_fixedColGrid.onClick, function(e, args) {
         _mainGrid.setActiveCell(args.row, 0);
+        _mainGrid.getActiveCellNode().classList.remove('active');
       });
 
-    // for (let k in grid) {
-    //   if (k.match(/^on/)) {
-    //     _handler.subscribe(grid[k], trigger.call(_fixedColGrid[k]));
-    //   }
-    // }
-    //
-
     // sticky scroll between each grid
-    var gridViewport = grid.getContainerNode().querySelector('.slick-viewport');
-    var fixedColumnsGridViewport = _fixedColGrid.getContainerNode().querySelector('.slick-viewport');
     _mainGrid.onScroll.subscribe(function(e, args) {
-      fixedColumnsGridViewport.scrollTop = args.scrollTop;
+      _fixedColViewportEl.scrollTop = args.scrollTop;
     });
     _fixedColGrid.onScroll.subscribe(function(e, args) {
-      gridViewport.scrollTop = args.scrollTop;
+      _mainViewportEl.scrollTop = args.scrollTop;
     });
   }
 
@@ -91,14 +105,18 @@ function ColFix(fixedColId) {
   function separateGrid(grid) {
 
     /*
-     * create DOM structrure such like:
+     * transform DOM structrure from:
      *
-     *   <wrapper>
-     *    <inner-wrapper>
-     *      <grid-for-fixed-column/>
-     *    </inner-wrapper>
-     *    <grid-of-original/>
-     *   </wrapper>
+     *   <div/><!-- containerNode -->
+     *
+     * to:
+     *
+     *   <div><!--wrapper -->
+     *    <div><!-- innerWrapper -->
+     *      <div/><!-- fixedColContainer -->
+     *    </div>
+     *    <div/><!-- containerNode -->
+     *   </div>
      */
     let containerNode = grid.getContainerNode(),
         wrapper = document.createElement('div'),
@@ -106,46 +124,67 @@ function ColFix(fixedColId) {
         fixedColContainer = document.createElement('div');
 
     // style
-    innerWrapper.style.float = 'left';
     let computed = window.getComputedStyle(containerNode);
+    wrapper.style.width = computed['width'];
+    innerWrapper.style.float = 'left';
     fixedColContainer.style.border = computed['border'];
     fixedColContainer.style.height = computed['height'];
     fixedColContainer.style.background = computed['background'];
+    containerNode.style.width = null;
 
-    // structure
+    // structure DOM
     wrapper.appendChild(innerWrapper);
     innerWrapper.appendChild(fixedColContainer);
     containerNode.parentNode.replaceChild(wrapper, containerNode);
     wrapper.appendChild(containerNode);
 
-    let originalColumns = grid.getColumns(),
-        fixedColumns = [],
-        unfixedColumns = [];
+    let fixedColGrid = new Slick.Grid(fixedColContainer, grid.getData(), [], grid.getOptions());
 
-    let partIndex = 0;
-    for (let len = originalColumns.length; partIndex < len; ++partIndex) {
-      let col = originalColumns[partIndex];
+    return {fixedColGrid: fixedColGrid, mainGrid: grid};
+  }
+
+  /**
+   * Set columns defination.
+   * A args `columnDef` would be separated and applied to each grids (main and fixed-grid).
+   * @param {Array.<Object>} columnsDef columns definations
+   */
+  function setColumns(columnsDef) {
+    _originalColumnsDef = columnsDef;
+
+    let fixedColumns = [],
+        unfixedColumns = [],
+        partIndex = 0,
+        len = columnsDef.length;
+
+    for (; partIndex < len; partIndex++) {
+      let col = columnsDef[partIndex];
       if (col.id === fixedColId) {
         partIndex++;
         break;
       }
     }
-    fixedColumns = originalColumns.slice(0, partIndex);
-    unfixedColumns = originalColumns.slice(partIndex);
-    let fixedColGrid = new Slick.Grid(fixedColContainer, grid.getData(), fixedColumns, grid.getOptions());
-    grid.setColumns(unfixedColumns);
 
-    return {fixedColGrid: fixedColGrid, mainGrid: grid};
+    fixedColumns = columnsDef.slice(0, partIndex);
+    unfixedColumns = columnsDef.slice(partIndex);
+
+    // update each grid columns defination
+    _originalSetColumns(unfixedColumns);
+    _fixedColGrid.setColumns(fixedColumns);
+
+    applyFixedColGridWidth();
   }
 
-  function setFixedColGridWidth() {
-    let fixedColGridWidth = 0;
-    let headers = _fixedColContainerEl.querySelectorAll('.slick-header-column');
+  /**
+   * Apply width of fixed-columns grid.
+   */
+  function applyFixedColGridWidth() {
+    let fixedColGridWidth = 0,
+        headers = _fixedColContainerEl.querySelectorAll('.slick-header-column');
+
     for (let i = 0, len = headers.length; i < len; i++) {
       fixedColGridWidth += headers[i].offsetWidth;
     }
 
-    _scrollbarDim = _scrollbarDim || measureScrollbar();
     let innerWrapper = _fixedColContainerEl.parentNode;
     innerWrapper.style.width = fixedColGridWidth + 'px';
     _fixedColContainerEl.style.width = fixedColGridWidth + _scrollbarDim.width + 'px';
@@ -156,8 +195,8 @@ function ColFix(fixedColId) {
    * @return {Object.<number, number>} width and height;
    */
   function measureScrollbar() {
-    var $c = $('<div style="position:absolute; top:-10000px; left:-10000px; width:100px; height:100px; overflow:scroll;"></div>').appendTo('body');
-    var dim = {
+    let $c = $('<div style="position:absolute; top:-10000px; left:-10000px; width:100px; height:100px; overflow:scroll;"></div>').appendTo('body');
+    let dim = {
       width: $c.width() - $c[0].clientWidth,
       height: $c.height() - $c[0].clientHeight
     };

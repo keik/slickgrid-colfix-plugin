@@ -31,4 +31,4 @@ for (var i = 0; i < 500; i++) {
 }
 
 var grid = new Slick.Grid('#my-grid', data, columns, options);
-grid.registerPlugin(new Slick.Plugins.ColFix('col1'));
+grid.registerPlugin(new Slick.Plugins.ColFix('col2'));
