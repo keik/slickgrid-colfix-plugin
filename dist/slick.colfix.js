@@ -31,65 +31,77 @@ $.extend(true, window, {
  * @constructor
  */
 function ColFix(fixedColId) {
-  var _mainGrid = undefined,
+  var _origGrid = undefined,
+      _mainGrid = undefined,
       _mainContainerEl = undefined,
       _mainViewportEl = undefined,
+      _mainGridUid = undefined,
       _fixedColGrid = undefined,
       _fixedColContainerEl = undefined,
       _fixedColViewportEl = undefined,
-      _uid = undefined,
+      _fixedColGridUid = undefined,
       _scrollbarDim = measureScrollbar(),
       _handler = new Slick.EventHandler();
 
-  var _originalColumnsDef = undefined,
-      _originalSetColumns = undefined;
+  var sharedHandlers = [],
+      sharedPlugins = [];
 
   function init(grid) {
+    _origGrid = grid;
+
+    // share same handlers with each internal grids
+    // handlers would be cached in `sharedHandlers` and set after initialization.
+    // TODO abstraction - ex Object.keys(grid).filter(function(a) { return a.match(/^on/); }.forEach...)
+    _origGrid.onHeaderRowCellRendered.subscribe = (function (origFn) {
+      return function (handler) {
+        origFn.apply(_origGrid, arguments);
+        sharedHandlers.push({ type: 'onHeaderRowCellRendered', fn: handler });
+      };
+    })(_origGrid.onHeaderRowCellRendered.subscribe);
+
+    // share same plugins with each internal grids
+    _origGrid.registerPlugin = function (plugin) {
+      if (_mainGrid && _fixedColGrid) {
+        _fixedColGrid.registerPlugin(new plugin.constructor());
+        _mainGrid.registerPlugin(new plugin.constructor());
+      } else {
+        sharedPlugins.push(plugin);
+      }
+    };
 
     // depending on grid option `explicitInitialization`, change a timing of initialization.
-    if (!grid.getOptions()['explicitInitialization']) {
-      initInternal(grid);
+    if (!_origGrid.getOptions()['explicitInitialization']) {
+      initInternal(_origGrid);
     } else {
-      grid.init = (function (originalInit) {
+      _origGrid.init = (function (originalInit) {
         return function () {
           originalInit();
-          initInternal(grid);
+          initInternal(_origGrid);
         };
-      })(grid.init);
+      })(_origGrid.init);
     }
   }
 
-  function initInternal(grid) {
-    // preserve original
-    _originalColumnsDef = [].concat(grid.getColumns());
-    _originalSetColumns = grid.setColumns;
-
+  function initInternal() {
     // separate grid internally
-    var grids = separateGrid(grid);
+    var grids = separateGrid();
     _mainGrid = grids.mainGrid;
-    _mainContainerEl = grid.getContainerNode();
+    _mainContainerEl = _mainGrid.getContainerNode();
     _mainViewportEl = _mainContainerEl.querySelector('.slick-viewport');
+    _mainGridUid = _mainGrid.getContainerNode().className.match(/(?: |^)slickgrid_(\d+)(?!\w)/)[1];
     _fixedColGrid = grids.fixedColGrid;
     _fixedColContainerEl = _fixedColGrid.getContainerNode();
     _fixedColViewportEl = _fixedColContainerEl.querySelector('.slick-viewport');
-    _uid = _mainGrid.getContainerNode().className.match(/(?: |^)slickgrid_(\d+)(?!\w)/)[1];
+    _fixedColGridUid = _fixedColGrid.getContainerNode().className.match(/(?: |^)slickgrid_(\d+)(?!\w)/)[1];
 
-    setColumns(_originalColumnsDef);
-
-    // overwrite methods
-    _mainGrid.getColumns = function () {
-      return _originalColumnsDef;
-    };
-    _mainGrid.setColumns = setColumns;
+    setColumns();
 
     // no event fired when `autosizeColumns` called, so follow it by advicing below methods with column group resizing.
-    ['invalidate', 'render'].forEach(function (fnName) {
-      _mainGrid[fnName] = (function (origFn) {
-        return function () {
-          origFn(arguments);
-          _fixedColGrid[fnName](arguments);
-        };
-      })(_mainGrid[fnName]);
+    ['invalidate', 'render', 'updateRowCount', 'invalidateRows'].forEach(function (fnName) {
+      _origGrid[fnName] = function () {
+        _fixedColGrid[fnName].apply(_fixedColGrid, arguments);
+        _mainGrid[fnName].apply(_fixedColGrid, arguments);
+      };
     });
 
     _handler
@@ -119,7 +131,7 @@ function ColFix(fixedColId) {
    * @param {SlickGrid} grid Base SlickGrid object
    * @return {Object.<SlickGrid, SlickGRid>} fixed column grid and main grid
    */
-  function separateGrid(grid) {
+  function separateGrid() {
 
     /*
      * transform DOM structrure from:
@@ -135,7 +147,7 @@ function ColFix(fixedColId) {
      *    <div/><!-- containerNode -->
      *   </div>
      */
-    var containerNode = grid.getContainerNode(),
+    var containerNode = _origGrid.getContainerNode(),
         wrapper = document.createElement('div'),
         innerWrapper = document.createElement('div'),
         fixedColContainer = document.createElement('div');
@@ -143,10 +155,12 @@ function ColFix(fixedColId) {
     // style
     var computed = window.getComputedStyle(containerNode);
     wrapper.style.width = computed['width'];
+    wrapper.id = containerNode.id;
+    containerNode.id = '';
+    containerNode.className = containerNode.className.replace(/slickgrid_\d+/, '');
     innerWrapper.style.float = 'left';
-    fixedColContainer.style.border = computed['border'];
+    fixedColContainer.className += containerNode.className;
     fixedColContainer.style.height = computed['height'];
-    fixedColContainer.style.background = computed['background'];
     fixedColContainer.style.boxSizing = 'content-box'; // TODO fix conflicted style intelligently
     containerNode.style.width = null;
 
@@ -156,10 +170,20 @@ function ColFix(fixedColId) {
     containerNode.parentNode.replaceChild(wrapper, containerNode);
     wrapper.appendChild(containerNode);
 
-    var fixedColGrid = new Slick.Grid(fixedColContainer, grid.getData(), [], grid.getOptions());
-    fixedColGrid.init();
+    var fixedColGrid = new Slick.Grid(fixedColContainer, _origGrid.getData(), [], _origGrid.getOptions());
+    var mainGrid = new Slick.Grid(containerNode, _origGrid.getData(), [], _origGrid.getOptions());
 
-    return { fixedColGrid: fixedColGrid, mainGrid: grid };
+    [fixedColGrid, mainGrid].forEach(function (grid) {
+      sharedHandlers.forEach(function (handler) {
+        grid[handler.type].subscribe(handler.fn);
+      });
+      sharedPlugins.forEach(function (plugin) {
+        grid.registerPlugin(new plugin.constructor());
+      });
+      grid.init();
+    });
+
+    return { fixedColGrid: fixedColGrid, mainGrid: mainGrid };
   }
 
   /**
@@ -167,10 +191,9 @@ function ColFix(fixedColId) {
    * A args `columnDef` would be separated and applied to each grids (main and fixed-grid).
    * @param {Array.<Object>} columnsDef columns definations
    */
-  function setColumns(columnsDef) {
-    _originalColumnsDef = columnsDef;
-
-    var fixedColumns = [],
+  function setColumns() {
+    var columnsDef = _origGrid.getColumns(),
+        fixedColumns = [],
         unfixedColumns = [],
         partIndex = 0,
         len = columnsDef.length;
@@ -187,8 +210,8 @@ function ColFix(fixedColId) {
     unfixedColumns = columnsDef.slice(partIndex);
 
     // update each grid columns defination
-    _originalSetColumns(unfixedColumns);
     _fixedColGrid.setColumns(fixedColumns);
+    _mainGrid.setColumns(unfixedColumns);
 
     applyFixedColGridWidth();
   }
@@ -198,7 +221,11 @@ function ColFix(fixedColId) {
    */
   function applyFixedColGridWidth() {
     var fixedColGridWidth = 0,
-        headers = _fixedColContainerEl.querySelectorAll('.slick-header-column');
+
+    // headers = _fixedColContainerEl.querySelectorAll('.slick-header-column');
+    headers = _fixedColContainerEl.querySelectorAll(_fixedColGrid.getColumns().map(function (c) {
+      return '#slickgrid_' + _fixedColGridUid + c.id;
+    }).join(','));
 
     for (var i = 0, len = headers.length; i < len; i++) {
       fixedColGridWidth += headers[i].offsetWidth;
