@@ -51,13 +51,13 @@ function ColFix(fixedColId) {
 
     // share same handlers with each internal grids
     // handlers would be cached in `sharedHandlers` and set after initialization.
-    // TODO abstraction - ex Object.keys(grid).filter(function(a) { return a.match(/^on/); }.forEach...)
-    _origGrid.onHeaderRowCellRendered.subscribe = (function (origFn) {
-      return function (handler) {
-        origFn.apply(_origGrid, arguments);
-        sharedHandlers.push({ type: 'onHeaderRowCellRendered', fn: handler });
+    Object.keys(grid).filter(function (key) {
+      return key.match(/^on/);
+    }).forEach(function (handlerName) {
+      _origGrid[handlerName].subscribe = function (handler) {
+        sharedHandlers.push({ handlerName: handlerName, handler: handler });
       };
-    })(_origGrid.onHeaderRowCellRendered.subscribe);
+    });
 
     // share same plugins with each internal grids
     _origGrid.registerPlugin = function (plugin) {
@@ -103,6 +103,10 @@ function ColFix(fixedColId) {
         _mainGrid[fnName].apply(_fixedColGrid, arguments);
       };
     });
+
+    _origGrid.getCellFromEvent = function () {
+      return _fixedColGrid.getCellFromEvent.apply(_fixedColGrid, arguments) || _mainGrid.getCellFromEvent.apply(_fixedColGrid, arguments);
+    };
 
     _handler
     // DEV unused snip
@@ -174,8 +178,8 @@ function ColFix(fixedColId) {
     var mainGrid = new Slick.Grid(containerNode, _origGrid.getData(), [], _origGrid.getOptions());
 
     [fixedColGrid, mainGrid].forEach(function (grid) {
-      sharedHandlers.forEach(function (handler) {
-        grid[handler.type].subscribe(handler.fn);
+      sharedHandlers.forEach(function (sharedHandler) {
+        grid[sharedHandler.handlerName].subscribe(sharedHandler.handler);
       });
       sharedPlugins.forEach(function (plugin) {
         grid.registerPlugin(new plugin.constructor());
