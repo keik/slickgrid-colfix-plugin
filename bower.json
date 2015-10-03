@@ -31,6 +31,7 @@
     "slickgrid": "https://github.com/mleibman/SlickGrid.git#2.1.0"
   },
   "devDependencies": {
-    "slickgrid-colgroup-plugin": "master"
+    "slickgrid-colgroup-plugin": "master",
+    "bootstrap": "~3.3.5"
   }
 }

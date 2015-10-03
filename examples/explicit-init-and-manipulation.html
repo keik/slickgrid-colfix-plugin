@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>slickgrid-colfix-plugin example</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../bower_components/slickgrid/slick.grid.css" type="text/css" />
+    <link rel="stylesheet" href="../bower_components/slickgrid/css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
+    <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="../bower_components/slickgrid/examples/examples.css" type="text/css" />
+    <style>
+      body {margin: 0;}
+      .grid {background: white; outline: 0; border: 1px solid gray;}
+      .slick-row.active {background-color: #fcc;}
+      .slick-header-column.ui-state-default {box-sizing: content-box;}
+      .slick-cell {box-sizing: content-box;}
+    </style>
+  </head>
+  <body>
+
+    <div id="my-grid" class="grid" style="width: 800px; height: 400px"></div>
+
+    <div id="context-menu">
+      <ul class="dropdown-menu" role="menu">
+        <li><a id="edit-cell">Edit</a></li>
+        <li class="divider"></li>
+        <li><a id="insert-row-above">Insert row above</a></li>
+        <li><a id="insert-row-below">Insert row below</a></li>
+        <li class="divider"></li>
+        <li><a id="remove-row">Remove row</a></li>
+      </ul>
+    </div>
+
+    <script src="../bower_components/slickgrid/lib/jquery-1.7.min.js"></script>
+    <script src="../bower_components/slickgrid/lib/jquery-ui-1.8.16.custom.min.js"></script>
+    <script src="../bower_components/slickgrid/lib/jquery.event.drag-2.2.js"></script>
+    <script src="../bower_components/slickgrid/slick.core.js"></script>
+    <script src="../bower_components/slickgrid/slick.dataview.js"></script>
+    <script src="../bower_components/slickgrid/slick.grid.js"></script>
+    <script src="../bower_components/slickgrid/slick.editors.js"></script>
+
+    <script src="../dist/slick.colfix.js"></script>
+    <script>
+
+      /** SlickGrid */
+      var grid;
+
+      /** DataView */
+      var dataView;
+
+      $(function() {
+        dataView = window.dataView = new Slick.Data.DataView();
+        grid = new Slick.Grid('#my-grid', dataView, columns, options);
+
+        // register colfix plguin
+        grid.registerPlugin(new Slick.Plugins.ColFix('col1'));
+
+        // event on row changed
+        dataView.onRowsChanged.subscribe(function () {
+          grid.invalidate();
+        });
+
+        grid.onContextMenu.subscribe(function (e, args) {
+          e.preventDefault();
+
+          var cell = grid.getCellFromEvent(e);
+          grid.gotoCell(cell.row, cell.cell);
+
+          var $menu = $('#context-menu')
+                .toggleClass('open', true)
+                .data({row: cell.row, cell: cell.cell}) // preserve evented pos
+                .css({position: 'absolute', top: e.pageY, left: e.pageX});
+
+          $(document).one('click', function () {
+            $menu.toggleClass('open', false);
+          });
+        });
+
+        dataView.setItems(data);
+        $('#context-menu').on('click', 'a', onClickContextMenu);
+
+        grid.init();
+      });
+
+      function onClickContextMenu (e) {
+        var $menu = $(e.delegateTarget),
+        data = $menu.data(),
+        row = data.row,
+        colId = columns[data.cell].id;
+        console.log(row);
+        switch (this.id) {
+        case 'edit-cell':
+          grid.editActiveCell();
+          break;
+        case 'insert-row-above':
+          dataView.insertItem(row, {id: genItemId()})
+          break;
+        case 'insert-row-below':
+          dataView.insertItem(row + 1, {id: genItemId()})
+          break;
+        case 'remove-row':
+          dataView.deleteItem(grid.getDataItem(row).id);
+          break;
+        default:
+        }
+      }
+
+      function genItemId() {
+        var uid = Math.round(1000000 * Math.random());
+        while (dataView.getItemById(uid)) {
+           uid = Math.round(1000000 * Math.random());
+        }
+        return uid;
+      }
+      /** columns defination */
+      var columns = [
+        {id: 'col1', name: 'col 1', field: 'col1', width: 50,  editor: Slick.Editors.Text},
+        {id: 'col2', name: 'col 2', field: 'col2', width: 80,  editor: Slick.Editors.Text},
+        {id: 'col3', name: 'col 3', field: 'col3', width: 100, editor: Slick.Editors.Text},
+        {id: 'col4', name: 'col 4', field: 'col4', width: 200, editor: Slick.Editors.Text},
+        {id: 'col5', name: 'col 5', field: 'col5', width: 50,  editor: Slick.Editors.Text},
+        {id: 'col6', name: 'col 6', field: 'col6', width: 300, editor: Slick.Editors.Text},
+        {id: 'col7', name: 'col 7', field: 'col7', width: 100, editor: Slick.Editors.Text},
+        {id: 'col8', name: 'col 8', field: 'col8', width: 200, editor: Slick.Editors.Text},
+        {id: 'col9', name: 'col 9', field: 'col9', width: 100, editor: Slick.Editors.Text}
+      ];
+
+      /** grid options */
+      var options = {
+        autoEdit: false,
+        editable: true,
+        enableColumnReorder: false,
+        explicitInitialization: true
+      };
+
+      /** data */
+      var data = [];
+      for (var i = 0; i < 500; i++) {
+        data[i] = {
+          id: i,
+          col1: 'col 1-' + i,
+          col2: 'col 2-' + i,
+          col3: 'col 3-' + i,
+          col4: 'col 4-' + i,
+          col5: 'col 5-' + i,
+          col6: 'col 6-' + i,
+          col7: 'col 7-' + i,
+          col8: 'col 8-' + i,
+          col9: 'col 9-' + i
+        };
+      }
+
+    </script>
+  </body>
+</html>
