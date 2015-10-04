@@ -47,16 +47,22 @@ function ColFix(fixedColId) {
     _origGrid = grid;
 
     // share same handlers with each internal grids
-    // handlers would be cached in `sharedHandlers` and set after initialization.
+    // if main grid were not initialize yet, handlers would be cached in `sharedHandlers` and set after initialization.
     Object.keys(grid).filter(function(key) {
       return key.match(/^on/);
     }).forEach(function(handlerName) {
       _origGrid[handlerName].subscribe = function(handler) {
-        sharedHandlers.push({handlerName, handler});
+        if (_mainGrid && _fixedColGrid) {
+          _fixedColGrid[handlerName].subscribe(handler);
+          _mainGrid[handlerName].subscribe(handler);
+        } else {
+          sharedHandlers.push({handlerName, handler});
+        }
       };
     });
 
     // share same plugins with each internal grids
+    // if main grid were not initialize yet, plugins would be cached in `sharedPlugins` and set after initialization.
     _origGrid.registerPlugin = function(plugin) {
       if (_mainGrid && _fixedColGrid) {
         _fixedColGrid.registerPlugin(new plugin.constructor());
