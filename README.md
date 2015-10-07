@@ -2,6 +2,8 @@
 
 [SlickGrid](https://github.com/mleibman/SlickGrid) plugin to make fixed columns for horizontal scroll.
 
+![](https://github.com/keik/slickgrid-colfix-plugin/raw/master/screenshots/screenshot.png)
+
 [demo](http://keik.info/products/slickgrid-colfix-plugin/examples/)
 
 ## Usage
