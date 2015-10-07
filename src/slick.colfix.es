@@ -65,8 +65,8 @@ function ColFix(fixedColId) {
     // if main grid were not initialize yet, plugins would be cached in `sharedPlugins` and set after initialization.
     _origGrid.registerPlugin = function(plugin) {
       if (_mainGrid && _fixedColGrid) {
-        _fixedColGrid.registerPlugin(new plugin.constructor());
-        _mainGrid.registerPlugin(new plugin.constructor());
+        _fixedColGrid.registerPlugin(plugin);
+        _mainGrid.registerPlugin(plugin);
       } else {
         sharedPlugins.push(plugin);
       }
@@ -189,7 +189,7 @@ function ColFix(fixedColId) {
         grid[sharedHandler.handlerName].subscribe(sharedHandler.handler);
       });
       sharedPlugins.forEach(function(plugin) {
-        grid.registerPlugin(new plugin.constructor());
+        grid.registerPlugin(plugin);
       });
       grid.init();
     });
