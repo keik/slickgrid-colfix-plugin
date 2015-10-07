@@ -97,8 +97,6 @@ function ColFix(fixedColId) {
     _fixedColViewportEl = _fixedColContainerEl.querySelector('.slick-viewport');
     _fixedColGridUid = _fixedColGrid.getContainerNode().className.match(/(?: |^)slickgrid_(\d+)(?!\w)/)[1];
 
-    setColumns();
-
     // no event fired when `autosizeColumns` called, so follow it by advicing below methods with column group resizing.
     ['invalidate', 'render', 'updateRowCount', 'invalidateRows'].forEach(function(fnName) {
       _origGrid[fnName] = function() {
@@ -111,6 +109,8 @@ function ColFix(fixedColId) {
       return _fixedColGrid.getCellFromEvent.apply(_fixedColGrid, arguments) ||
         _mainGrid.getCellFromEvent.apply(_fixedColGrid, arguments);
     };
+
+    _origGrid.setColumns = setColumns;
 
     _handler
     // DEV unused snip
@@ -133,6 +133,8 @@ function ColFix(fixedColId) {
     _fixedColGrid.onScroll.subscribe(function(e, args) {
       _mainViewportEl.scrollTop = args.scrollTop;
     });
+
+    _origGrid.setColumns(_origGrid.getColumns());
   }
 
   /**
@@ -200,17 +202,17 @@ function ColFix(fixedColId) {
    * A args `columnDef` would be separated and applied to each grids (main and fixed-grid).
    * @param {Array.<Object>} columnsDef columns definations
    */
-  function setColumns() {
-    let columnsDef = _origGrid.getColumns(),
-        fixedColumns = [],
+  function setColumns(columnsDef) {
+    let fixedColumns = [],
         unfixedColumns = [],
+        i = 0,
         partIndex = 0,
         len = columnsDef.length;
 
-    for (; partIndex < len; partIndex++) {
-      let col = columnsDef[partIndex];
+    for (; i < len; i++) {
+      let col = columnsDef[i];
       if (col.id === fixedColId) {
-        partIndex++;
+        partIndex = i + 1;
         break;
       }
     }
@@ -220,9 +222,8 @@ function ColFix(fixedColId) {
 
     // update each grid columns defination
     _fixedColGrid.setColumns(fixedColumns);
-    _mainGrid.setColumns(unfixedColumns);
-
     applyFixedColGridWidth();
+    _mainGrid.setColumns(unfixedColumns);
   }
 
   /**
@@ -231,9 +232,10 @@ function ColFix(fixedColId) {
   function applyFixedColGridWidth() {
     let fixedColGridWidth = 0,
         // headers = _fixedColContainerEl.querySelectorAll('.slick-header-column');
-        headers  = _fixedColContainerEl.querySelectorAll(_fixedColGrid.getColumns().map(function(c) {
+        headersSelector = _fixedColGrid.getColumns().map(function(c) {
           return '#slickgrid_' + _fixedColGridUid + c.id;
-        }).join(','));
+        }).join(','),
+        headers  = headersSelector ? _fixedColContainerEl.querySelectorAll(headersSelector) : [];
 
     for (let i = 0, len = headers.length; i < len; i++) {
       fixedColGridWidth += headers[i].offsetWidth;
