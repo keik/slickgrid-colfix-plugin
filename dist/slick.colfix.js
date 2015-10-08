@@ -113,7 +113,7 @@ function ColFix(fixedColId) {
     // ---------------------
 
     // no event fired when `autosizeColumns` called, so follow it by advicing below methods with column group resizing.
-    ['invalidate', 'render', 'updateRow', 'updateRowCount', 'invalidateRows'].forEach(function (fnName) {
+    ['invalidate', 'invalidateRow', 'invalidateRows', 'invalidateAllRows', 'render', 'updateRow', 'updateRowCount'].forEach(function (fnName) {
       _origGrid[fnName] = (function (origFn) {
         return function () {
           origFn.apply(_origGrid, arguments);
