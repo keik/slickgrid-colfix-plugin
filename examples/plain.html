@@ -65,14 +65,14 @@
       /** SlickGrid */
       var grid = new Slick.Grid('#my-grid', data, columns, options);
 
-      // register colfix plguin
-      grid.registerPlugin(new Slick.Plugins.ColFix('col2'));
-
       function a() {
         console.log('getActiveCell', grid.getActiveCell());
         console.log('getActiveCellNode', grid.getActiveCellNode());
         console.log('getActiveCellPosition', grid.getActiveCellPosition());
       }
+      grid.onActiveCellChanged.subscribe(function(a,b,c) {
+        console.log(a,b,c);
+      })
     </script>
   </body>
 </html>

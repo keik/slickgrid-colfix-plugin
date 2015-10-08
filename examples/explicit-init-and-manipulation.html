@@ -20,6 +20,10 @@
 
     <div id="my-grid" class="grid" style="width: 800px; height: 400px"></div>
 
+    <p style="margin-top: 12px; font-size: 1em">
+      you can manipulate data with right-click context menu.
+    </p>
+
     <div id="context-menu">
       <ul class="dropdown-menu" role="menu">
         <li><a id="edit-cell">Edit</a></li>
@@ -60,6 +64,7 @@
           grid.invalidate();
         });
 
+        console.log('subscribe!');
         grid.onContextMenu.subscribe(function (e, args) {
           e.preventDefault();
 
@@ -84,31 +89,30 @@
 
       function onClickContextMenu (e) {
         var $menu = $(e.delegateTarget),
-        data = $menu.data(),
-        row = data.row,
-        colId = columns[data.cell].id;
-        console.log(row);
+            data = $menu.data(),
+            row = data.row,
+            colId = columns[data.cell].id;
         switch (this.id) {
-        case 'edit-cell':
-          grid.editActiveCell();
-          break;
-        case 'insert-row-above':
-          dataView.insertItem(row, {id: genItemId()})
-          break;
-        case 'insert-row-below':
-          dataView.insertItem(row + 1, {id: genItemId()})
-          break;
-        case 'remove-row':
-          dataView.deleteItem(grid.getDataItem(row).id);
-          break;
-        default:
+          case 'edit-cell':
+            grid.editActiveCell();
+            break;
+          case 'insert-row-above':
+            dataView.insertItem(row, {id: genItemId()})
+              break;
+          case 'insert-row-below':
+            dataView.insertItem(row + 1, {id: genItemId()})
+              break;
+          case 'remove-row':
+            dataView.deleteItem(grid.getDataItem(row).id);
+            break;
+          default:
         }
       }
 
       function genItemId() {
         var uid = Math.round(1000000 * Math.random());
         while (dataView.getItemById(uid)) {
-           uid = Math.round(1000000 * Math.random());
+          uid = Math.round(1000000 * Math.random());
         }
         return uid;
       }
