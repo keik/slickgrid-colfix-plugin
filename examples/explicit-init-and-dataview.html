@@ -20,21 +20,6 @@
 
     <div id="my-grid" class="grid" style="width: 800px; height: 400px"></div>
 
-    <p style="margin-top: 12px; font-size: 1em">
-      you can manipulate data with right-click context menu.
-    </p>
-
-    <div id="context-menu">
-      <ul class="dropdown-menu" role="menu">
-        <li><a id="edit-cell">Edit</a></li>
-        <li class="divider"></li>
-        <li><a id="insert-row-above">Insert row above</a></li>
-        <li><a id="insert-row-below">Insert row below</a></li>
-        <li class="divider"></li>
-        <li><a id="remove-row">Remove row</a></li>
-      </ul>
-    </div>
-
     <script src="../bower_components/slickgrid/lib/jquery-1.7.min.js"></script>
     <script src="../bower_components/slickgrid/lib/jquery-ui-1.8.16.custom.min.js"></script>
     <script src="../bower_components/slickgrid/lib/jquery.event.drag-2.2.js"></script>
@@ -53,7 +38,7 @@
       var dataView;
 
       $(function() {
-        dataView = window.dataView = new Slick.Data.DataView();
+        dataView = new Slick.Data.DataView();
         grid = new Slick.Grid('#my-grid', dataView, columns, options);
 
         // register colfix plguin
@@ -64,57 +49,10 @@
           grid.invalidate();
         });
 
-        grid.onContextMenu.subscribe(function (e, args) {
-          e.preventDefault();
-
-          var cell = grid.getCellFromEvent(e);
-          grid.gotoCell(cell.row, cell.cell);
-
-          var $menu = $('#context-menu')
-                .toggleClass('open', true)
-                .data({row: cell.row, cell: cell.cell}) // preserve evented pos
-                .css({position: 'absolute', top: e.pageY, left: e.pageX});
-
-          $(document).one('click', function () {
-            $menu.toggleClass('open', false);
-          });
-        });
-
         dataView.setItems(data);
-        $('#context-menu').on('click', 'a', onClickContextMenu);
-
         grid.init();
       });
 
-      function onClickContextMenu (e) {
-        var $menu = $(e.delegateTarget),
-            data = $menu.data(),
-            row = data.row,
-            colId = columns[data.cell].id;
-        switch (this.id) {
-          case 'edit-cell':
-            grid.editActiveCell();
-            break;
-          case 'insert-row-above':
-            dataView.insertItem(row, {id: genItemId()})
-              break;
-          case 'insert-row-below':
-            dataView.insertItem(row + 1, {id: genItemId()})
-              break;
-          case 'remove-row':
-            dataView.deleteItem(grid.getDataItem(row).id);
-            break;
-          default:
-        }
-      }
-
-      function genItemId() {
-        var uid = Math.round(1000000 * Math.random());
-        while (dataView.getItemById(uid)) {
-          uid = Math.round(1000000 * Math.random());
-        }
-        return uid;
-      }
       /** columns defination */
       var columns = [
         {id: 'col1', name: 'col 1', field: 'col1', width: 50,  editor: Slick.Editors.Text},
