@@ -297,7 +297,7 @@ function ColFix(fixedColId) {
 
     // headers = _fixedColContainerEl.querySelectorAll('.slick-header-column');
     headersSelector = _fixedColGrid.getColumns().map(function (c) {
-      return '#slickgrid_' + _fixedColGridUid + c.id;
+      return '#slickgrid_' + _fixedColGridUid + String(c.id).replace(/(#|,|\.)/g, '\\$1');
     }).join(','),
         headers = headersSelector ? _fixedColContainerEl.querySelectorAll(headersSelector) : [];
 
