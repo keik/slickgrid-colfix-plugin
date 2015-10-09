@@ -312,6 +312,12 @@ function ColFix(fixedColId) {
     }
 
     fixedColumns = columnsDef.slice(0, _partIndex);
+    fixedColumns.forEach(function (item, idx) {
+      if (idx < _partIndex) {
+        item.resizable = false;
+      }
+    });
+
     unfixedColumns = columnsDef.slice(_partIndex);
 
     // update each grid columns defination
