@@ -121,7 +121,8 @@ function ColFix(fixedColId) {
       _fixedColGrid.onActiveCellChanged.unsubscribe(onActiveCellChanged);
       _fixedColGrid.setActiveCell(row, _activeGrid === _fixedColGrid ? cell : 0);
       _fixedColGrid.onActiveCellChanged.subscribe(onActiveCellChanged);
-      (_activeGrid === _mainGrid ? _fixedColGrid : _mainGrid).getActiveCellNode().classList.remove('active');
+      var activeCellNode = (_activeGrid === _mainGrid ? _fixedColGrid : _mainGrid).getActiveCellNode();
+      if (activeCellNode) activeCellNode.classList.remove('active');
     }).subscribe(_mainGrid.onActiveCellChanged, onActiveCellChanged).subscribe(_fixedColGrid.onActiveCellChanged, onActiveCellChanged);
 
     function onActiveCellChanged(e, args) {
