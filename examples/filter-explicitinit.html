@@ -97,11 +97,13 @@
       });
 
       dataView.onRowsChanged.subscribe(function (e, args) {
+        console.log('onRowsChanged');
         grid.invalidateRows(args.rows);
         grid.render();
       });
 
       dataView.onRowCountChanged.subscribe(function () {
+        console.log('onRowCountChanged');
         grid.updateRowCount();
         grid.render();
       });
@@ -121,6 +123,7 @@
       /** event handlers */
       var handlers = {
         onKeyupGridHeaderRow: function() {
+          console.log('onkeyup');
           var $this = $(this);
 
           var columnId = $this.data('columnId');
