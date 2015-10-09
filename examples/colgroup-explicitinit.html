@@ -11,6 +11,7 @@
       body {margin: 0;}
       .grid {background: white; outline: 0; border: 1px solid gray;}
       .slick-row.active {background-color: #fcc;}
+      .idx {background-color: #f2f2f2; border-right: 1px solid #aaa; text-align: right; font-size: 0.8em; padding-right: 8px;}
     </style>
   </head>
   <body>
@@ -21,7 +22,6 @@
     <script src="../bower_components/slickgrid/lib/jquery-ui-1.8.16.custom.min.js"></script>
     <script src="../bower_components/slickgrid/lib/jquery.event.drag-2.2.js"></script>
     <script src="../bower_components/slickgrid/slick.core.js"></script>
-    <script src="../bower_components/slickgrid/slick.dataview.js"></script>
     <script src="../bower_components/slickgrid/slick.grid.js"></script>
     <script src="../bower_components/slickgrid-colgroup-plugin/dist/slick.colgroup.js"></script>
 
@@ -35,15 +35,16 @@
 
       /** columns defination */
       var columns = [
-        {id: 'col1', name: 'col 1', field: 'col1', width: 50,  group: 1},
-        {id: 'col2', name: 'col 2', field: 'col2', width: 80,  group: 1},
-        {id: 'col3', name: 'col 3', field: 'col3', width: 100, group: 2},
-        {id: 'col4', name: 'col 4', field: 'col4', width: 200, group: 2},
-        {id: 'col5', name: 'col 5', field: 'col5', width: 50,  group: 2},
-        {id: 'col6', name: 'col 6', field: 'col6', width: 300, group: 3},
-        {id: 'col7', name: 'col 7', field: 'col7', width: 100, group: 3},
-        {id: 'col8', name: 'col 8', field: 'col8', width: 200, group: 3},
-        {id: 'col9', name: 'col 9', field: 'col9', width: 100, group: 3}
+        {id: '#',    name: '',      field: 'idx',  width: 50,  group: '', cssClass: 'idx'},
+        {id: 'col1', name: 'col 1', field: 'col1', width: 50,  group: 'group-1'},
+        {id: 'col2', name: 'col 2', field: 'col2', width: 80,  group: 'group-1'},
+        {id: 'col3', name: 'col 3', field: 'col3', width: 100, group: 'group-2'},
+        {id: 'col4', name: 'col 4', field: 'col4', width: 200, group: 'group-2'},
+        {id: 'col5', name: 'col 5', field: 'col5', width: 50,  group: 'group-2'},
+        {id: 'col6', name: 'col 6', field: 'col6', width: 300, group: 'group-3'},
+        {id: 'col7', name: 'col 7', field: 'col7', width: 100, group: 'group-3'},
+        {id: 'col8', name: 'col 8', field: 'col8', width: 200, group: 'group-3'},
+        {id: 'col9', name: 'col 9', field: 'col9', width: 100, group: 'group-3'}
       ];
 
       /** grid options */
@@ -57,6 +58,7 @@
       var data = [];
       for (var i = 0; i < 500; i++) {
         data[i] = {
+          idx: i,
           col1: 'col 1-' + i,
           col2: 'col 2-' + i,
           col3: 'col 3-' + i,
@@ -73,7 +75,7 @@
       var grid = new Slick.Grid('#my-grid', data, columns, options);
 
       // register colfix plguin
-      grid.registerPlugin(new Slick.Plugins.ColFix('col1'));
+      grid.registerPlugin(new Slick.Plugins.ColFix('#'));
 
       // register colgroup plguin
       grid.registerPlugin(new Slick.Plugins.ColGroup());
