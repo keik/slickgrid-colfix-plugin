@@ -28,7 +28,7 @@ $.extend(true, window, {
  *
  * ATTENTION:
  *
- *   This plugin must be registered earlier than any other plugin / event-handler registration.
+ *   This plugin must be registered earlier than any other plugins / event handlers registration.
  *
  * @class Slick.Plugins.ColFix
  * @param {String} fixedColId column id to make fixed column

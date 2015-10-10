@@ -1,6 +1,6 @@
 # slickgrid-colfix-plugin
 
-[SlickGrid](https://github.com/mleibman/SlickGrid) plugin to make fixed columns for horizontal scroll.
+A [SlickGrid](https://github.com/mleibman/SlickGrid) plugin to make fixed columns for horizontal scroll.
 
 ![](https://github.com/keik/slickgrid-colfix-plugin/raw/master/screenshots/screenshot.png)
 
@@ -13,6 +13,11 @@ Register plugin, with one argument to specify a column ID which you want to make
 ```
 grid.registerPlugin(new Slick.Plugins.Colfix(colId));
 ```
+
+**ATTENTION**
+
+This plugin must be registered earlier than any other plugins / event handlers registration.
+
 
 ## License
 
