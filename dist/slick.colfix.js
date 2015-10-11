@@ -172,6 +172,22 @@ function ColFix(fixedColId) {
       }
     };
 
+    _origGrid.destroy = (function (origFn) {
+      return function () {
+        // restore original structure
+        var origContainerNode = _origGrid.getContainerNode();
+        var wrapper = _origGrid.getContainerNode().parentNode;
+        origContainerNode.id = wrapper.id;
+        origContainerNode.style.display = '';
+        wrapper.parentNode.replaceChild(origContainerNode, wrapper);
+
+        // destroy all grids
+        origFn();
+        _fixedColGrid.destroy();
+        _mainGrid.destroy();
+      };
+    })(_origGrid.destroy);
+
     ['invalidate', 'invalidateRow', 'invalidateRows', 'invalidateAllRows', 'render', 'updateRow', 'updateRowCount'].forEach(function (fnName) {
       _origGrid[fnName] = (function (origFn) {
         return function () {
