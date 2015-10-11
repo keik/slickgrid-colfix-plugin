@@ -37,6 +37,7 @@
   "homepage": "https://github.com/keik/slickgrid-colfix-plugin#readme",
   "devDependencies": {
     "babelify": "^6.2.0",
+    "bluebird": "^2.10.2",
     "browserify": "^11.0.1",
     "chai": "^3.2.0",
     "eslint": "^1.2.1",
