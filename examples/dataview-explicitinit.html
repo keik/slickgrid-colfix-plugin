@@ -46,7 +46,7 @@
         grid.registerPlugin(new Slick.Plugins.ColFix('col2'));
 
         // event on row changed
-        dataView.onRowsChanged.subscribe(function () {
+        dataView.onRowsChanged.subscribe(function() {
           grid.invalidate();
         });
 

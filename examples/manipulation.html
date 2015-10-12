@@ -53,18 +53,18 @@
       var dataView;
 
       $(function() {
-        dataView = window.dataView = new Slick.Data.DataView();
+        dataView = new Slick.Data.DataView();
         grid = new Slick.Grid('#my-grid', dataView, columns, options);
 
         // register colfix plguin
         grid.registerPlugin(new Slick.Plugins.ColFix('col2'));
 
         // event on row changed
-        dataView.onRowsChanged.subscribe(function () {
+        dataView.onRowsChanged.subscribe(function() {
           grid.invalidate();
         });
 
-        grid.onContextMenu.subscribe(function (e, args) {
+        grid.onContextMenu.subscribe(function(e, args) {
           e.preventDefault();
 
           var cell = grid.getCellFromEvent(e);
@@ -75,7 +75,7 @@
                 .data({row: cell.row, cell: cell.cell}) // preserve evented pos
                 .css({position: 'absolute', top: e.pageY, left: e.pageX});
 
-          $(document).one('click', function () {
+          $(document).one('click', function() {
             $menu.toggleClass('open', false);
           });
         });
@@ -84,7 +84,7 @@
         $('#context-menu').on('click', 'a', onClickContextMenu);
       });
 
-      function onClickContextMenu (e) {
+      function onClickContextMenu(e) {
         var $menu = $(e.delegateTarget),
             data = $menu.data(),
             row = data.row,

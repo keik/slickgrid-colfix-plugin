@@ -117,16 +117,16 @@
         // ------------------------
 
         // set DataView-handlers
-        dataView.onRowsChanged.subscribe(function () {
+        dataView.onRowsChanged.subscribe(function() {
           grid.invalidate();
         });
 
-        dataView.onRowsChanged.subscribe(function (e, args) {
+        dataView.onRowsChanged.subscribe(function(e, args) {
           grid.invalidateRows(args.rows);
           grid.render();
         });
 
-        dataView.onRowCountChanged.subscribe(function () {
+        dataView.onRowCountChanged.subscribe(function() {
           grid.updateRowCount();
           grid.render();
         });
@@ -145,7 +145,7 @@
         grid.registerPlugin(new Slick.Plugins.ColGroup());
 
         // set SlickGrid-event handlers
-        grid.onContextMenu.subscribe(function (e, args) {
+        grid.onContextMenu.subscribe(function(e, args) {
           e.preventDefault();
 
           var cell = grid.getCellFromEvent(e);
@@ -156,7 +156,7 @@
                 .data({row: cell.row, cell: cell.cell}) // preserve evented pos
                 .css({position: 'absolute', top: e.pageY, left: e.pageX});
 
-          $(document).one('click', function () {
+          $(document).one('click', function() {
             $menu.toggleClass('open', false);
           });
         });

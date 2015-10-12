@@ -59,7 +59,7 @@
       };
 
       /** data */
-      var data = window.data = [];
+      var data = [];
       for (var i = 0; i < 500; i++) {
         data[i] = {
           id: i,
@@ -79,7 +79,7 @@
       var columnFilters = {};
 
       /** dataview */
-      var dataView = window.dataView = new Slick.Data.DataView();
+      var dataView = new Slick.Data.DataView();
       dataView.setFilter(filter);
       dataView.setItems(data);
 
@@ -95,13 +95,13 @@
         .appendTo(args.node);
       });
 
-      dataView.onRowsChanged.subscribe(function (e, args) {
+      dataView.onRowsChanged.subscribe(function(e, args) {
         console.log('onRowsChanged');
         grid.invalidateRows(args.rows);
         grid.render();
       });
 
-      dataView.onRowCountChanged.subscribe(function () {
+      dataView.onRowCountChanged.subscribe(function() {
         console.log('onRowCountChanged');
         grid.updateRowCount();
         grid.render();

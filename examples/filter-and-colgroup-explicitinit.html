@@ -96,16 +96,16 @@
         // ------------------------
 
         // set DataView-handlers
-        dataView.onRowsChanged.subscribe(function () {
+        dataView.onRowsChanged.subscribe(function() {
           grid.invalidate();
         });
 
-        dataView.onRowsChanged.subscribe(function (e, args) {
+        dataView.onRowsChanged.subscribe(function(e, args) {
           grid.invalidateRows(args.rows);
           grid.render();
         });
 
-        dataView.onRowCountChanged.subscribe(function () {
+        dataView.onRowCountChanged.subscribe(function() {
           grid.updateRowCount();
           grid.render();
         });
