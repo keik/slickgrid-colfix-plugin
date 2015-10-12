@@ -1,4 +1,4 @@
-/* globals chai: false, describe: false, it: false, afterEach: false, each: false */
+/* globals chai: false, describe: false, it: false, before: false, after: false, afterEach: false, each: false */
 /* eslint camelcase: [0] */
 
 var assert = chai.assert;
@@ -47,7 +47,7 @@ describe('in explicitInitialization mode', function() {
     }
 
     /** SlickGrid */
-    var grid = new Slick.Grid('#my-grid', data, columns, options);
+    grid = new Slick.Grid('#my-grid', data, columns, options);
 
     // register colfix plguin
     grid.registerPlugin(new Slick.Plugins.ColFix('#'));
@@ -65,8 +65,8 @@ describe('in explicitInitialization mode', function() {
     });
   });
 
-  describe('fixed grid', function() {
-    it('should scroll stickly with main grid', function(done) {
+  describe('scroll', function() {
+    it('of fixed grid should follow scroll of main grid stickly', function(done) {
       var containers = document.querySelectorAll('.ui-widget[class*=slickgrid]'),
           fixedContainer = containers[0],
           mainContainer = containers[1];
@@ -82,10 +82,111 @@ describe('in explicitInitialization mode', function() {
           mainContainer.querySelector('.slick-viewport').scrollTop = 0;
           setTimeout(function() {
             assert.equal(fixedContainer.querySelector('.slick-viewport').scrollTop, 0);
-            done()
+            done();
           }, 100);
         });
       });
+    });
+
+    it('of main grid should follow scroll of fixed grid stickly', function(done) {
+      var containers = document.querySelectorAll('.ui-widget[class*=slickgrid]'),
+          fixedContainer = containers[0],
+          mainContainer = containers[1];
+
+      new Promise(function(resolve, reject) {
+        fixedContainer.querySelector('.slick-viewport').scrollTop = 100;
+        setTimeout(function() {
+          assert.equal(mainContainer.querySelector('.slick-viewport').scrollTop, 100);
+          resolve();
+        }, 100);
+      }).then(function() {
+        return new Promise(function(resolve, reject) {
+          fixedContainer.querySelector('.slick-viewport').scrollTop = 0;
+          setTimeout(function() {
+            assert.equal(mainContainer.querySelector('.slick-viewport').scrollTop, 0);
+            done();
+          }, 100);
+        });
+      });
+    });
+  });
+
+  describe('acitve cell', function() {
+    it('should be able to set in fixed grid', function() {
+      var containers = document.querySelectorAll('.ui-widget[class*=slickgrid]'),
+          fixedContainer = containers[0],
+          mainContainer = containers[1];
+
+      assert.equal(fixedContainer.querySelectorAll('.slick-row.active').length, 0);
+      assert.equal(mainContainer.querySelectorAll('.slick-row.active').length, 0);
+
+      // exercise
+      grid.setActiveCell(0, 0);
+
+      // verify active row
+      var fixedActiveRows = fixedContainer.querySelectorAll('.slick-row.active');
+      assert.equal(fixedActiveRows.length, 1);
+      assert.equal(fixedActiveRows[0].style.top, '0px');
+
+      var mainActiveRows = fixedContainer.querySelectorAll('.slick-row.active');
+      assert.equal(mainActiveRows.length, 1);
+      assert.equal(mainActiveRows[0].style.top, '0px');
+
+      // verify active cell
+      var fixedActiveCells = fixedContainer.querySelectorAll('.slick-cell.active');
+      assert.equal(fixedActiveCells.length, 1);
+      assert.equal(Array.prototype.indexOf.apply(fixedActiveCells[0].parentNode.childNodes, [fixedActiveCells[0]]), 0);
+
+      var mainActiveCells = mainContainer.querySelectorAll('.slick-cell.active');
+      assert.equal(mainActiveCells.length, 0);
+    });
+
+    it('should be able to set in main grid', function() {
+      var containers = document.querySelectorAll('.ui-widget[class*=slickgrid]'),
+          fixedContainer = containers[0],
+          mainContainer = containers[1];
+
+      assert.equal(fixedContainer.querySelectorAll('.slick-row.active').length, 1);
+      assert.equal(mainContainer.querySelectorAll('.slick-row.active').length, 1);
+
+      // exercise
+      grid.setActiveCell(1, 2);
+
+      // verify active row
+      var fixedActiveRows = fixedContainer.querySelectorAll('.slick-row.active');
+      assert.equal(fixedActiveRows.length, 1);
+      assert.equal(fixedActiveRows[0].style.top, '25px');
+
+      var mainActiveRows = fixedContainer.querySelectorAll('.slick-row.active');
+      assert.equal(mainActiveRows.length, 1);
+      assert.equal(mainActiveRows[0].style.top, '25px');
+
+      // verify active cell
+      var fixedActiveCells = fixedContainer.querySelectorAll('.slick-cell.active');
+      assert.equal(fixedActiveCells.length, 0);
+
+      var mainActiveCells = mainContainer.querySelectorAll('.slick-cell.active');
+      assert.equal(mainActiveCells.length, 1);
+      assert.equal(Array.prototype.indexOf.apply(mainActiveCells[0].parentNode.childNodes, [mainActiveCells[0]]), 1);
+    });
+
+    it('should be able to get', function() {
+      var containers = document.querySelectorAll('.ui-widget[class*=slickgrid]'),
+          fixedContainer = containers[0],
+          mainContainer = containers[1];
+
+      assert.equal(fixedContainer.querySelectorAll('.slick-row.active').length, 1);
+      assert.equal(mainContainer.querySelectorAll('.slick-row.active').length, 1);
+
+      // exercise 1
+      grid.setActiveCell(0, 0);
+      assert.equal(grid.getActiveCell().row, 0);
+      assert.equal(grid.getActiveCell().cell, 0);
+
+      // exercise 2
+      grid.setActiveCell(1, 2);
+      assert.equal(grid.getActiveCell().row, 1);
+      assert.equal(grid.getActiveCell().cell, 2);
     });
   });
 
