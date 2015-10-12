@@ -4,14 +4,15 @@
 var assert = chai.assert;
 
 var grid;
+var dataView;
 
-describe('with explicitInitialization', function() {
+describe('with DataView', function() {
 
   before(function() {
 
     /** columns defination */
     var columns = [
-      {id: '#',    name: '',      field: 'idx',  width: 50, cssClass: 'idx'},
+      {id: '#',    name: '',      field: 'id',  width: 50, cssClass: 'idx'},
       {id: 'col1', name: 'col 1', field: 'col1', width: 50},
       {id: 'col2', name: 'col 2', field: 'col2', width: 80},
       {id: 'col3', name: 'col 3', field: 'col3', width: 100},
@@ -25,15 +26,14 @@ describe('with explicitInitialization', function() {
 
     /** grid options */
     var options = {
-      enableColumnReorder: false,
-      explicitInitialization: true
+      enableColumnReorder: false
     };
 
     /** data */
     var data = [];
     for (var i = 0; i < 500; i++) {
       data[i] = {
-        idx: i,
+        id: i,
         col1: 'col 1-' + i,
         col2: 'col 2-' + i,
         col3: 'col 3-' + i,
@@ -46,13 +46,18 @@ describe('with explicitInitialization', function() {
       };
     }
 
-    /** SlickGrid */
-    grid = new Slick.Grid('#my-grid', data, columns, options);
+    dataView = new Slick.Data.DataView();
+    grid = new Slick.Grid('#my-grid', dataView, columns, options);
 
     // register colfix plguin
     grid.registerPlugin(new Slick.Plugins.ColFix('#'));
 
-    grid.init();
+    // event on row changed
+    dataView.onRowsChanged.subscribe(function() {
+      grid.invalidate();
+    });
+
+    dataView.setItems(data);
   });
 
   after(function() {
