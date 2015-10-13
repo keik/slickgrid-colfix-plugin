@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>slickgrid-colfix-plugin example</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../bower_components/slickgrid/slick.grid.css" type="text/css" />
+    <link rel="stylesheet" href="../bower_components/slickgrid/css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
+    <link rel="stylesheet" href="../bower_components/slickgrid/examples/examples.css" type="text/css" />
+    <style>
+      body {margin: 0;}
+      .grid {background: white; outline: 0; border: 1px solid gray;}
+      .slick-row.active {background-color: #fcc;}
+      .idx {background-color: #f2f2f2; border-right: 1px solid #aaa; text-align: right; font-size: 0.8em; padding-right: 8px;}
+    </style>
+  </head>
+  <body>
+
+    <div id="my-grid" class="grid" style="width: 800px; height: 400px"></div>
+
+    <script src="../bower_components/slickgrid/lib/jquery-1.7.min.js"></script>
+    <script src="../bower_components/slickgrid/lib/jquery-ui-1.8.16.custom.min.js"></script>
+    <script src="../bower_components/slickgrid/lib/jquery.event.drag-2.2.js"></script>
+    <script src="../bower_components/slickgrid/slick.core.js"></script>
+    <script src="../bower_components/slickgrid/slick.grid.js"></script>
+
+    <script src="../dist/slick.colfix.js"></script>
+    <script>
+
+      /** columns defination */
+      var columns = [
+        {id: '#',    name: '',      field: 'idx',  width: 50,  sortable: true, cssClass: 'idx'},
+        {id: 'col1', name: 'col 1', field: 'col1', width: 50,  sortable: true},
+        {id: 'col2', name: 'col 2', field: 'col2', width: 80,  sortable: true},
+        {id: 'col3', name: 'col 3', field: 'col3', width: 100, sortable: true},
+        {id: 'col4', name: 'col 4', field: 'col4', width: 200, sortable: true},
+        {id: 'col5', name: 'col 5', field: 'col5', width: 50,  sortable: true},
+        {id: 'col6', name: 'col 6', field: 'col6', width: 300, sortable: true},
+        {id: 'col7', name: 'col 7', field: 'col7', width: 100, sortable: true},
+        {id: 'col8', name: 'col 8', field: 'col8', width: 200, sortable: true},
+        {id: 'col9', name: 'col 9', field: 'col9', width: 100, sortable: true}
+      ];
+
+      /** grid options */
+      var options = {
+        enableColumnReorder: false
+      };
+
+      /** data */
+      var data = [];
+      for (var i = 0; i < 500; i++) {
+        data[i] = {
+          idx: i,
+          col1: 'col 1-' + i,
+          col2: 'col 2-' + i,
+          col3: 'col 3-' + i,
+          col4: 'col 4-' + i,
+          col5: 'col 5-' + i,
+          col6: 'col 6-' + i,
+          col7: 'col 7-' + i,
+          col8: 'col 8-' + i,
+          col9: 'col 9-' + i
+        };
+      }
+
+      /** SlickGrid */
+      var grid = new Slick.Grid('#my-grid', data, columns, options);
+
+      // register colfix plguin
+      grid.registerPlugin(new Slick.Plugins.ColFix('#'));
+
+      // sort
+      grid.onSort.subscribe(function (e, args) {
+        var sortSign = args.sortAsc ? 1 : -1
+        var comparer = function(a, b) {
+          return (a[args.sortCol.field] > b[args.sortCol.field]) ? sortSign : -sortSign;
+        };
+        data.sort(comparer);
+        grid.invalidate();
+      });
+
+    </script>
+  </body>
+</html>
