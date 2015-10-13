@@ -70,7 +70,7 @@ function ColFix(fixedColId) {
     _mainViewportEl = _mainGrid.getContainerNode().querySelector('.slick-viewport');
     _fixedColGrid = grids.fixedColGrid;
     _fixedColViewportEl = _fixedColGrid.getContainerNode().querySelector('.slick-viewport');
-    _fixedColGridUid = _fixedColGrid.getContainerNode().className.match(/(?: |^)slickgrid_(\d+)(?!\w)/)[1];
+    _fixedColGridUid = _fixedColGrid.getContainerNode().className.match(/(?:\s+|^)slickgrid_(\d+)(?!\w)/)[1];
     _activeGrid = _mainGrid;
 
     // ---------------------------------------
@@ -123,7 +123,7 @@ function ColFix(fixedColId) {
         _fixedColGrid.onActiveCellChanged.subscribe(onActiveCellChanged);
         let activeCellNode = (_activeGrid === _mainGrid ? _fixedColGrid : _mainGrid).getActiveCellNode();
         if (activeCellNode)
-          activeCellNode.classList.remove('active');
+          activeCellNode.className = activeCellNode.className.replace(/(:?\s+|^)active(:?\s+|$)/, ' ');
       })
       .subscribe(_mainGrid.onActiveCellChanged, onActiveCellChanged)
       .subscribe(_fixedColGrid.onActiveCellChanged, onActiveCellChanged);
@@ -279,7 +279,7 @@ function ColFix(fixedColId) {
 
     // unset orig props
     origContainerNode.style.display = 'none';
-    origContainerNode.className = origContainerNode.className.replace(/slickgrid_\d+/, '');
+    origContainerNode.className = origContainerNode.className.replace(/(?:\s+|^)slickgrid_\d+(?:\s+|$)/, ' ');
 
     // copy orig props to new wrapper and containers
     wrapper.id = origContainerNode.id;
