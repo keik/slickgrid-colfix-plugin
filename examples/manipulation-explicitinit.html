@@ -131,22 +131,22 @@
       function onClickContextMenu(e) {
         var $menu = $(e.delegateTarget),
             data = $menu.data(),
-            row = data.row,
-            colId = columns[data.cell].id;
+            row = data.row;
+
         switch (this.id) {
-          case 'edit-cell':
-            grid.editActiveCell();
-            break;
-          case 'insert-row-above':
-            dataView.insertItem(row, {id: genItemId()})
-              break;
-          case 'insert-row-below':
-            dataView.insertItem(row + 1, {id: genItemId()})
-              break;
-          case 'remove-row':
-            dataView.deleteItem(grid.getDataItem(row).id);
-            break;
-          default:
+        case 'edit-cell':
+          grid.editActiveCell();
+          break;
+        case 'insert-row-above':
+          dataView.insertItem(row, {id: genItemId()});
+          break;
+        case 'insert-row-below':
+          dataView.insertItem(row + 1, {id: genItemId()});
+          break;
+        case 'remove-row':
+          dataView.deleteItem(grid.getDataItem(row).id);
+          break;
+        default:
         }
       }
 
