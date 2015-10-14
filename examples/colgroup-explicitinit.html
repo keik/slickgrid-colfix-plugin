@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
     <title>slickgrid-colfix-plugin example</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../bower_components/slickgrid/slick.grid.css" type="text/css" />
     <link rel="stylesheet" href="../bower_components/slickgrid/css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
@@ -27,11 +27,6 @@
 
     <script src="../dist/slick.colfix.js"></script>
     <script>
-
-      /** initialize */
-      $(function init() {
-        grid.init();
-      });
 
       /** columns defination */
       var columns = [
@@ -78,6 +73,9 @@
 
       // register colgroup plguin
       grid.registerPlugin(new Slick.Plugins.ColGroup());
+
+      // initialize
+      grid.init();
 
     </script>
   </body>

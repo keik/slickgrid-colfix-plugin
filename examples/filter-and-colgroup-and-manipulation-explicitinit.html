@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
     <title>slickgrid-colfix-plugin example</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../bower_components/slickgrid/slick.grid.css" type="text/css" />
     <link rel="stylesheet" href="../bower_components/slickgrid/css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
@@ -50,12 +50,6 @@
     <script src="../dist/slick.colfix.js"></script>
     <script>
 
-      /** SlickGrid */
-      var grid;
-
-      /** initialize */
-      var dataView
-
       /** columns defination */
       var columns = [
         {id: 'col1', name: 'col 1', field: 'col1', width: 50,  editor: Slick.Editors.Text, group: 'group-1'},
@@ -99,77 +93,69 @@
       /** filter */
       var columnFilters = {};
 
-      /** initialize */
-      $(function init() {
-        initializeGrid();
+      /** DataView */
+      var dataView = new Slick.Data.DataView();
 
-        // set DOM-event handlers
-        $('#my-grid').on('change keyup', ':input', handlers.onKeyupGridHeaderRow);
-        $('#context-menu').on('click', 'a', handlers.onClickContextMenu);
+      /** SlickGrid */
+      var grid = new Slick.Grid('#my-grid', dataView, columns, options);
+
+      // ------------------------
+      // setup DataView
+      // ------------------------
+
+      // set DataView-handlers
+      dataView.onRowsChanged.subscribe(function() {
+        grid.invalidate();
       });
 
-      function initializeGrid() {
-        dataView = new Slick.Data.DataView();
-        grid = new Slick.Grid('#my-grid', dataView, columns, options);
+      dataView.onRowsChanged.subscribe(function(e, args) {
+        grid.invalidateRows(args.rows);
+        grid.render();
+      });
 
-        // ------------------------
-        // setup DataView
-        // ------------------------
+      dataView.onRowCountChanged.subscribe(function() {
+        grid.updateRowCount();
+        grid.render();
+      });
 
-        // set DataView-handlers
-        dataView.onRowsChanged.subscribe(function() {
-          grid.invalidate();
+      dataView.setFilter(filter);
+      dataView.setItems(data);
+
+      // ------------------------
+      // setup SlickGrid
+      // ------------------------
+
+      // register colfix plugin BEFORE subscribe grid events
+      grid.registerPlugin(new Slick.Plugins.ColFix('col2'));
+
+      // register colgroup plguin
+      grid.registerPlugin(new Slick.Plugins.ColGroup());
+
+      // set SlickGrid-event handlers
+      grid.onContextMenu.subscribe(function(e, args) {
+        e.preventDefault();
+
+        var cell = grid.getCellFromEvent(e);
+        grid.gotoCell(cell.row, cell.cell);
+
+        var $menu = $('#context-menu')
+              .toggleClass('open', true)
+              .data({row: cell.row, cell: cell.cell}) // preserve evented pos
+              .css({position: 'absolute', top: e.pageY, left: e.pageX});
+
+        $(document).one('click', function() {
+          $menu.toggleClass('open', false);
         });
+      });
 
-        dataView.onRowsChanged.subscribe(function(e, args) {
-          grid.invalidateRows(args.rows);
-          grid.render();
-        });
+      grid.onHeaderRowCellRendered.subscribe(function(e, args) {
+        $('<input type="text">')
+          .data('columnId', args.column.id)
+          .appendTo(args.node);
+      });
 
-        dataView.onRowCountChanged.subscribe(function() {
-          grid.updateRowCount();
-          grid.render();
-        });
-
-        dataView.setFilter(filter);
-        dataView.setItems(data);
-
-        // ------------------------
-        // setup SlickGrid
-        // ------------------------
-
-        // register colfix plugin BEFORE subscribe grid events
-        grid.registerPlugin(new Slick.Plugins.ColFix('col2'));
-
-        // // register colgroup plguin
-        grid.registerPlugin(new Slick.Plugins.ColGroup());
-
-        // set SlickGrid-event handlers
-        grid.onContextMenu.subscribe(function(e, args) {
-          e.preventDefault();
-
-          var cell = grid.getCellFromEvent(e);
-          grid.gotoCell(cell.row, cell.cell);
-
-          var $menu = $('#context-menu')
-                .toggleClass('open', true)
-                .data({row: cell.row, cell: cell.cell}) // preserve evented pos
-                .css({position: 'absolute', top: e.pageY, left: e.pageX});
-
-          $(document).one('click', function() {
-            $menu.toggleClass('open', false);
-          });
-        });
-
-        grid.onHeaderRowCellRendered.subscribe(function(e, args) {
-          $('<input type="text">')
-        .data('columnId', args.column.id)
-        .appendTo(args.node);
-        });
-
-        // initialize
-        grid.init();
-      }
+      // initialize
+      grid.init();
 
       /**
        * Generate random item ID.
@@ -204,23 +190,23 @@
          */
         onClickContextMenu: function(e) {
           var $menu = $(e.delegateTarget),
-              data = $menu.data(),
-              row = data.row,
-              colId = columns[data.cell].id;
+          data = $menu.data(),
+          row = data.row,
+          colId = columns[data.cell].id;
           switch (this.id) {
-            case 'edit-cell':
-              grid.editActiveCell();
-              break;
-            case 'insert-row-above':
-              dataView.insertItem(row, {id: genItemId()})
-                break;
-            case 'insert-row-below':
-              dataView.insertItem(row + 1, {id: genItemId()})
-                break;
-            case 'remove-row':
-              dataView.deleteItem(grid.getDataItem(row).id);
-              break;
-            default:
+          case 'edit-cell':
+            grid.editActiveCell();
+            break;
+          case 'insert-row-above':
+            dataView.insertItem(row, {id: genItemId()})
+            break;
+          case 'insert-row-below':
+            dataView.insertItem(row + 1, {id: genItemId()})
+            break;
+          case 'remove-row':
+            dataView.deleteItem(grid.getDataItem(row).id);
+            break;
+          default:
           }
         },
 
@@ -238,6 +224,10 @@
           }
         }
       };
+
+      // set DOM-event handlers
+      $('#my-grid').on('change keyup', ':input', handlers.onKeyupGridHeaderRow);
+      $('#context-menu').on('click', 'a', handlers.onClickContextMenu);
 
     </script>
   </body>

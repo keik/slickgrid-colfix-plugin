@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
     <title>slickgrid-colfix-plugin example</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../bower_components/slickgrid/slick.grid.css" type="text/css" />
     <link rel="stylesheet" href="../bower_components/slickgrid/css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
@@ -29,13 +29,6 @@
 
     <script src="../dist/slick.colfix.js"></script>
     <script>
-
-      /** initialize */
-      $(function init() {
-        grid.init();
-
-        $('#my-grid').on('change keyup', ':input', handlers.onKeyupGridHeaderRow);
-      });
 
       /** columns defination */
       var columns = [
@@ -80,15 +73,25 @@
 
       /** dataview */
       var dataView = new Slick.Data.DataView();
-      dataView.setFilter(filter);
-      dataView.setItems(data);
 
       /** SlickGrid */
       var grid = new Slick.Grid('#my-grid', dataView, columns, options);
 
+      // ------------------------
+      // setup DataView
+      // ------------------------
+
+      dataView.setFilter(filter);
+      dataView.setItems(data);
+
+      // ------------------------
+      // setup SlickGrid
+      // ------------------------
+
       // register colfix plugin BEFORE subscribe grid events
       grid.registerPlugin(new Slick.Plugins.ColFix('col2'));
 
+      // set SlickGrid-event handlers
       grid.onHeaderRowCellRendered.subscribe(function(e, args) {
         $('<input type="text">')
         .data('columnId', args.column.id) // DATA API を用いて DOM 要素にカラム ID を保持する。
@@ -104,6 +107,9 @@
         grid.updateRowCount();
         grid.render();
       });
+
+      // initialize
+      grid.init();
 
       function filter(item) {
         for (var columnId in columnFilters) {
@@ -129,6 +135,9 @@
           }
         }
       };
+
+      // set DOM-event handlers
+      $('#my-grid').on('change keyup', ':input', handlers.onKeyupGridHeaderRow);
 
     </script>
   </body>
