@@ -4,17 +4,7 @@
   "description": "SlickGrid plugin to make fixed columns for horizontal scroll.",
   "main": "dist/slick.colfix.js",
   "scripts": {
-    "install": "bower i",
-    "lint": "eslint src/*.es",
-    "start:dev": "http-server & watchify src/slick.colfix.es -o dist/slick.colfix.js -t babelify -v",
-    "test": "mocha-phantomjs tests/index.html",
-    "build": "npm run clean && npm run lint && npm run browserify && npm run replace:version && npm run uglify && npm run test",
-    "version": "npm run build && git add .",
-    "-----": "----------------------------------------------------------------",
-    "replace:version": "VERSION=$(node -e 'console.log(require(\"./package.json\").version)') && perl -i -pe 's/\\$VERSION/v'\"$VERSION\"'/' 'dist/slick.colfix.js'",
-    "clean": "rimraf dist && mkdirp dist",
-    "browserify": "browserify -t babelify src/slick.colfix.es > dist/slick.colfix.js",
-    "uglify": "uglifyjs dist/slick.colfix.js -cm --comments -o dist/slick.colfix.min.js"
+    "version": "make build && git add ."
   },
   "repository": {
     "type": "git",
@@ -38,14 +28,13 @@
   "devDependencies": {
     "babelify": "^6.2.0",
     "bluebird": "^2.10.2",
+    "bower": "^1.7.0",
     "browserify": "^11.0.1",
     "chai": "^3.2.0",
     "eslint": "^1.2.1",
     "http-server": "^0.8.0",
-    "mkdirp": "^0.5.1",
     "mocha": "^2.3.3",
     "mocha-phantomjs": "^4.0.1",
-    "rimraf": "^2.4.2",
     "uglify-js": "^2.4.24",
     "watchify": "^3.3.1"
   }

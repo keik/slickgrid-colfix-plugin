@@ -1,7 +1,7 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /**
  * https://github.com/keik/slickgrid-colfix-plugin
- * @version $VERSION
+ * @version v0.2.1
  * @author keik <k4t0.kei@gmail.com>
  * @license MIT
  */
@@ -339,8 +339,8 @@ function ColFix(fixedColId) {
 
     // update each grid columns defination
     _fixedColGrid.setColumns(fixedColumns);
-    applyFixedColGridWidth();
     _mainGrid.setColumns(unfixedColumns);
+    setTimeout(applyFixedColGridWidth, 0);
   }
 
   /**
@@ -349,18 +349,10 @@ function ColFix(fixedColId) {
   function applyFixedColGridWidth() {
     var fixedColContainerEl = _fixedColGrid.getContainerNode(),
         innerWrapper = fixedColContainerEl.parentNode,
-        fixedColGridWidth = 0,
-        headersSelector = _fixedColGrid.getColumns().map(function (c) {
-      return '#slickgrid_' + _fixedColGridUid + String(c.id).replace(/(#|,|\.)/g, '\\$1');
-    }).join(','),
-        headers = headersSelector ? fixedColContainerEl.querySelectorAll(headersSelector) : [];
+        width = parseInt(_fixedColGrid.getCanvasNode().style.width, 10);
 
-    for (var i = 0, len = headers.length; i < len; i++) {
-      fixedColGridWidth += headers[i].offsetWidth;
-    }
-
-    innerWrapper.style.width = fixedColGridWidth + 'px';
-    fixedColContainerEl.style.width = fixedColGridWidth + _scrollbarDim.width + _containerBorderDim.left + _containerBorderDim.right + 'px';
+    innerWrapper.style.width = width + 'px';
+    fixedColContainerEl.style.width = width + _scrollbarDim.width + _containerBorderDim.left + _containerBorderDim.right + 'px';
   }
 
   /**

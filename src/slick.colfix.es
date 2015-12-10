@@ -343,8 +343,8 @@ function ColFix(fixedColId) {
 
     // update each grid columns defination
     _fixedColGrid.setColumns(fixedColumns);
-    applyFixedColGridWidth();
     _mainGrid.setColumns(unfixedColumns);
+    setTimeout(applyFixedColGridWidth, 0);
   }
 
   /**
@@ -353,18 +353,10 @@ function ColFix(fixedColId) {
   function applyFixedColGridWidth() {
     let fixedColContainerEl = _fixedColGrid.getContainerNode(),
         innerWrapper = fixedColContainerEl.parentNode,
-        fixedColGridWidth = 0,
-        headersSelector = _fixedColGrid.getColumns().map(function(c) {
-          return '#slickgrid_' + _fixedColGridUid + String(c.id).replace(/(#|,|\.)/g, '\\$1');
-        }).join(','),
-        headers  = headersSelector ? fixedColContainerEl.querySelectorAll(headersSelector) : [];
+        width = parseInt(_fixedColGrid.getCanvasNode().style.width, 10);
 
-    for (let i = 0, len = headers.length; i < len; i++) {
-      fixedColGridWidth += headers[i].offsetWidth;
-    }
-
-    innerWrapper.style.width = fixedColGridWidth + 'px';
-    fixedColContainerEl.style.width = fixedColGridWidth + _scrollbarDim.width + _containerBorderDim.left + _containerBorderDim.right + 'px';
+    innerWrapper.style.width = width + 'px';
+    fixedColContainerEl.style.width = width + _scrollbarDim.width + _containerBorderDim.left + _containerBorderDim.right + 'px';
   }
 
   /**
