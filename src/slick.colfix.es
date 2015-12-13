@@ -65,7 +65,7 @@ function ColFix(fixedColId) {
     // separate grid and cache
     // ---------------------------------------
 
-    let grids = separateGrid();
+    let grids = separateGrid(grid);
     _mainGrid = grids.mainGrid;
     _mainViewportEl = _mainGrid.getContainerNode().querySelector('.slick-viewport');
     _fixedColGrid = grids.fixedColGrid;
@@ -228,7 +228,7 @@ function ColFix(fixedColId) {
    * @param {SlickGrid} grid Base SlickGrid object
    * @return {Object.<SlickGrid, SlickGrid>} fixed column grid and main grid
    */
-  function separateGrid() {
+  function separateGrid(grid) {
 
     /*
      * transform DOM structrure from:
@@ -296,8 +296,33 @@ function ColFix(fixedColId) {
     wrapper.appendChild(clearfix);
 
     // instantiate
-    let fixedColGrid = new Slick.Grid(fixedColContainer, _origGrid.getData(), [], _origGrid.getOptions());
-    let mainGrid = new Slick.Grid(mainContainerNode, _origGrid.getData(), [], _origGrid.getOptions());
+    let columnsDef = grid.getColumns();
+    let fixedColumns = [],
+        unfixedColumns = [],
+        i = 0,
+        len = columnsDef.length;
+
+    _partIndex = 0;
+
+    for (; i < len; i++) {
+      let col = columnsDef[i];
+      if (col.id === fixedColId) {
+        _partIndex = i + 1;
+        break;
+      }
+    }
+
+    fixedColumns = columnsDef.slice(0, _partIndex);
+    fixedColumns.forEach(function(item, idx) {
+      if (idx < _partIndex) {
+        item.resizable = false;
+      }
+    });
+
+    unfixedColumns = columnsDef.slice(_partIndex);
+
+    let fixedColGrid = new Slick.Grid(fixedColContainer, _origGrid.getData(), fixedColumns, _origGrid.getOptions());
+    let mainGrid = new Slick.Grid(mainContainerNode, _origGrid.getData(), unfixedColumns, _origGrid.getOptions());
 
     [fixedColGrid, mainGrid].forEach(function(grid) {
       sharedHandlers.forEach(function(sharedHandler) {

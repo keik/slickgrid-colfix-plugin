@@ -9,12 +9,12 @@
     <link rel="stylesheet" href="../bower_components/slickgrid/examples/examples.css" type="text/css" />
     <style>
       body {margin: 0;}
+      .slick-header-columns {background-image: none;}
+      .slick-header-column {background-image: none; background-color: #eaeaea;}
+      .slick-header-column:hover {background-image: none; background-color: #D4EEFF;}
       .grid {background: white; outline: 0; border: 1px solid gray;}
       .slick-row.active {background-color: #fcc;}
       .idx {background-color: #f2f2f2; border-right: 1px solid #aaa; text-align: right; font-size: 0.8em; padding-right: 8px;}
-      .slick-header-column {background-size: contain;}
-      .slick-header-column:hover {background-size: contain;}
-
     </style>
   </head>
   <body>
@@ -33,10 +33,8 @@
 
       /** columns defination */
       var columns = [
-        {id: '#',    name: '', field: 'idx', width: 50, cssClass: 'idx'},
-        {id: 'col1', name: 'col 1'},
-
-
+        {id: '#',    name: '#', field: 'idx', width: 50, cssClass: 'idx'},
+        {id: 'col1', name: 'col 1', field: 'col1'},
         {id: 'col2', name: 'col 2', children: [
           {id: 'col2-1', name: 'col 2-1', field: 'col2-1', width: 100},
           {id: 'col2-2', name: 'col 2-2', children: [
@@ -62,6 +60,7 @@
       for (var i = 0; i < 500; i++) {
         data[i] = {
           'idx': i,
+          'col1': '01/05/2009',
           'col1-1-1': '01/05/2009',
           'col2-1':    Math.round(Math.random() * 100),
           'col2-2-1':    Math.round(Math.random() * 100),
@@ -82,6 +81,12 @@
       // register colgroup plguin
       grid.registerPlugin(new Slick.Plugins.ColGroup());
 
+      // justify height
+      var mainGrid = $('.grid').eq(2),
+          colFixedGrid = $('.grid').eq(1);
+      colFixedGrid.find('.slick-header').height(mainGrid.find('.slick-header').height());
+      colFixedGrid.find('.slick-header-columns').height(mainGrid.find('.slick-header-columns').outerHeight() * 3);
+      colFixedGrid.find('.slick-header-column').outerHeight(colFixedGrid.find('.slick-header-columns').height());
     </script>
   </body>
 </html>

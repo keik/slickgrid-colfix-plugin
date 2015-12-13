@@ -10,12 +10,15 @@
     <link rel="stylesheet" href="../bower_components/slickgrid/examples/examples.css" type="text/css" />
     <style>
       body {margin: 0;}
+      .slick-header-columns {background-image: none;}
+      .slick-header-column {background-image: none; background-color: #eaeaea;}
+      .slick-header-column:hover {background-image: none; background-color: #D4EEFF;}
       .grid {background: white; outline: 0; border: 1px solid gray;}
       .ui-state-default {border: none;}
       .slick-row.active {background-color: #fcc;}
       .slick-header-column.ui-state-default {box-sizing: content-box;}
       .slick-cell {box-sizing: content-box;}
-      .slick-headerrow-column {border-right: 1px solid #d3d3d3; border-bottom: 1px solid #d3d3d3; box-sizing: border-box;}
+      .slick-headerrow-column {background-image: none; border-right: 1px solid #d3d3d3; border-bottom: 1px solid #d3d3d3; box-sizing: border-box;}
       .slick-headerrow-column input {margin: 0; padding: 0; width: 100%; height: 100%; box-sizing: border-box;}
     </style>
   </head>
@@ -52,15 +55,21 @@
 
       /** columns defination */
       var columns = [
-        {id: 'col1', name: 'col 1', field: 'col1', width: 50,  editor: Slick.Editors.Text, group: 'group-1'},
-        {id: 'col2', name: 'col 2', field: 'col2', width: 80,  editor: Slick.Editors.Text, group: 'group-1'},
-        {id: 'col3', name: 'col 3', field: 'col3', width: 100, editor: Slick.Editors.Text, group: 'group-2'},
-        {id: 'col4', name: 'col 4', field: 'col4', width: 200, editor: Slick.Editors.Text, group: 'group-2'},
-        {id: 'col5', name: 'col 5', field: 'col5', width: 50,  editor: Slick.Editors.Text, group: 'group-2'},
-        {id: 'col6', name: 'col 6', field: 'col6', width: 300, editor: Slick.Editors.Text, group: 'group-3'},
-        {id: 'col7', name: 'col 7', field: 'col7', width: 100, editor: Slick.Editors.Text, group: 'group-3'},
-        {id: 'col8', name: 'col 8', field: 'col8', width: 200, editor: Slick.Editors.Text, group: 'group-3'},
-        {id: 'col9', name: 'col 9', field: 'col9', width: 100, editor: Slick.Editors.Text, group: 'group-3'}
+        {id: '#',    name: '#', field: 'idx', width: 50, cssClass: 'idx'},
+        {id: 'col1', name: 'col 1', field: 'col1'},
+        {id: 'col2', name: 'col 2', children: [
+          {id: 'col2-1', name: 'col 2-1', field: 'col2-1', width: 100},
+          {id: 'col2-2', name: 'col 2-2', children: [
+            {id: 'col2-2-1', name: 'col 2-2-1', field: 'col2-2-1', width: 200},
+            {id: 'col2-2-2', name: 'col 2-2-2', field: 'col2-2-2', width: 50}
+          ]},
+        ]},
+        {id: 'col3', name: 'col3', children: [
+          {id: 'col3-1', name: 'col 3-1', field: 'col3-1', width: 300},
+          {id: 'col3-2', name: 'col 3-2', field: 'col3-2', width: 100},
+          {id: 'col3-3', name: 'col 3-3', field: 'col3-3', width: 200},
+          {id: 'col3-4', name: 'col 3-4', field: 'col3-4', width: 100}
+        ]}
       ];
 
       /** grid options */
@@ -77,16 +86,17 @@
       var data = [];
       for (var i = 0; i < 500; i++) {
         data[i] = {
-          id: i,
-          col1: 'col 1-' + i,
-          col2: 'col 2-' + i,
-          col3: 'col 3-' + i,
-          col4: 'col 4-' + i,
-          col5: 'col 5-' + i,
-          col6: 'col 6-' + i,
-          col7: 'col 7-' + i,
-          col8: 'col 8-' + i,
-          col9: 'col 9-' + i
+          'id': i,
+          'idx': i,
+          'col1': '01/05/2009',
+          'col1-1-1': '01/05/2009',
+          'col2-1':    Math.round(Math.random() * 100),
+          'col2-2-1':    Math.round(Math.random() * 100),
+          'col2-2-2':    Math.round(Math.random() * 100),
+          'col3-1': '01/05/2009',
+          'col3-2': '5 days',
+          'col3-3':    Math.round(Math.random() * 100),
+          'col3-4':    Math.round(Math.random() * 100)
         };
       }
 
@@ -126,7 +136,7 @@
       // ------------------------
 
       // register colfix plugin BEFORE subscribe grid events
-      grid.registerPlugin(new Slick.Plugins.ColFix('col2'));
+      grid.registerPlugin(new Slick.Plugins.ColFix('#'));
 
       // register colgroup plguin
       grid.registerPlugin(new Slick.Plugins.ColGroup());
@@ -169,11 +179,30 @@
         return uid;
       }
 
+      // justify height
+      var mainGrid = $('.grid').eq(2),
+          colFixedGrid = $('.grid').eq(1);
+      colFixedGrid.find('.slick-header').height(mainGrid.find('.slick-header').height());
+      colFixedGrid.find('.slick-header-columns').height(mainGrid.find('.slick-header-columns').outerHeight() * 3);
+      colFixedGrid.find('.slick-header-column').outerHeight(colFixedGrid.find('.slick-header-columns').height());
+
       function filter(item) {
+        var columns = grid.getColumns();
         for (var columnId in columnFilters) {
           if (columnFilters[columnId] !== '') {
-            var column = grid.getColumns()[grid.getColumnIndex(columnId)];
-            if (item[column.field].match(columnFilters[columnId]) === null) {
+            function searchColumn(columns, columnId) {
+              for (var i = 0, len = columns.length; i < len; i++) {
+                var column = columns[i];
+                if (column.id === columnId) {
+                  return column;
+                }
+                if (column.children && column.children.length > 0) {
+                  return searchColumn(column.children, columnId);
+                }
+              }
+            }
+            var column = searchColumn(columns, columnId);
+            if (String(item[column.field]).match(columnFilters[columnId]) === null) {
               return false;
             }
           }
