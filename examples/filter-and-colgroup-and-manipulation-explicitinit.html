@@ -62,7 +62,7 @@
           {id: 'col2-2', name: 'col 2-2', children: [
             {id: 'col2-2-1', name: 'col 2-2-1', field: 'col2-2-1', width: 200},
             {id: 'col2-2-2', name: 'col 2-2-2', field: 'col2-2-2', width: 50}
-          ]},
+          ]}
         ]},
         {id: 'col3', name: 'col3', children: [
           {id: 'col3-1', name: 'col 3-1', field: 'col3-1', width: 300},
@@ -146,7 +146,9 @@
         e.preventDefault();
 
         var cell = grid.getCellFromEvent(e);
-        grid.gotoCell(cell.row, cell.cell);
+        setTimeout(function() {
+          grid.setActiveCell(cell.row, cell.cell);
+        });
 
         var $menu = $('#context-menu')
               .toggleClass('open', true)

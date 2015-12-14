@@ -112,7 +112,9 @@
         e.preventDefault();
 
         var cell = grid.getCellFromEvent(e);
-        grid.gotoCell(cell.row, cell.cell);
+        setTimeout(function() {
+          grid.setActiveCell(cell.row, cell.cell);
+        });
 
         var $menu = $('#context-menu')
               .toggleClass('open', true)

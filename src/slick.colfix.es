@@ -5,6 +5,8 @@
  * @license MIT
  */
 
+import 'es5-shim';
+
 // register namespace
 $.extend(true, window, {
   Slick: {
@@ -254,7 +256,14 @@ function ColFix(fixedColId) {
         clearfix = document.createElement('div');
 
     // style
-    let computed = window.getComputedStyle(origContainerNode);
+    let computed;
+    // for IE 8
+    if (!window.getComputedStyle) {
+      computed = origContainerNode.currentStyle;
+    } else {
+      computed = window.getComputedStyle(origContainerNode);
+    }
+
     if (computed.boxSizing === 'border-box') {
       _containerBorderDim = {
         top: parseInt(computed.borderTopWidth, 10),
@@ -370,6 +379,13 @@ function ColFix(fixedColId) {
     _fixedColGrid.setColumns(fixedColumns);
     _mainGrid.setColumns(unfixedColumns);
     setTimeout(applyFixedColGridWidth, 0);
+    // for IE 8
+    if (!window.getComputedStyle) {
+      setTimeout(function() {
+        let style = _fixedColGrid.getContainerNode().parentNode.getAttribute('style');
+        _fixedColGrid.getContainerNode().parentNode.setAttribute('style', style);
+      });
+    }
   }
 
   /**
