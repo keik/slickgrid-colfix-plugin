@@ -1829,7 +1829,7 @@ if (String(/a/mig) !== '/a/gim') {
 },{}],2:[function(require,module,exports){
 /**
  * https://github.com/keik/slickgrid-colfix-plugin
- * @version v0.2.2
+ * @version v0.2.3
  * @author keik <k4t0.kei@gmail.com>
  * @license MIT
  */
