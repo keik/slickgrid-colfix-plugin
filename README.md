@@ -4,7 +4,7 @@ A [SlickGrid](https://github.com/mleibman/SlickGrid) plugin to make fixed column
 
 ![](https://github.com/keik/slickgrid-colfix-plugin/raw/master/screenshots/screenshot.png)
 
-[demo](http://keik.info/products/slickgrid-colfix-plugin/examples/)
+[demo](http://keik.github.io/slickgrid-colfix-plugin/examples/)
 
 ## Usage
 
