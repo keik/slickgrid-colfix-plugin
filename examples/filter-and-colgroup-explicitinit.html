@@ -64,7 +64,7 @@
 
       /** data */
       var data = [];
-      for (var i = 0; i < 500; i++) {
+      for (var i = 0; i < 5; i++) {
         data[i] = {
           'id': i,
           'idx': i,
@@ -142,17 +142,6 @@
         var columns = grid.getColumns();
         for (var columnId in columnFilters) {
           if (columnFilters[columnId] !== '') {
-            function searchColumn(columns, columnId) {
-              for (var i = 0, len = columns.length; i < len; i++) {
-                var column = columns[i];
-                  if (column.id === columnId) {
-                    return column;
-                  }
-                if (column.children && column.children.length > 0) {
-                  return searchColumn(column.children, columnId);
-                }
-              }
-            }
             var column = searchColumn(columns, columnId);
             if (String(item[column.field]).match(columnFilters[columnId]) === null) {
               return false;
@@ -160,6 +149,26 @@
           }
         }
         return true;
+      }
+
+      /**
+       * Search and return a column defination that specified with column ID recursively
+       * @param {Array.<Object>} column definations
+       * @param {String} columnId column ID
+       */
+      function searchColumn(columns, columnId) {
+        for (var i = 0, len = columns.length; i < len; i++) {
+          var column = columns[i];
+          if (column.id === columnId) {
+            return column;
+          } else if (column.children && column.children.length > 0) {
+            var found = searchColumn(column.children, columnId);
+            if (found != null) {
+              return found;
+            }
+          }
+        }
+        return null;
       }
 
       /** event handlers */
