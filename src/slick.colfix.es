@@ -211,7 +211,9 @@ function ColFix(fixedColId) {
       let tmp = _fixedColGrid.getCellFromEvent.apply(_fixedColGrid, arguments);
       if (!tmp) {
         tmp = _mainGrid.getCellFromEvent.apply(_fixedColGrid, arguments);
-        tmp.cell += _partIndex;
+        if (tmp) {
+          tmp.cell += _partIndex;
+        }
       }
       return tmp;
     };
