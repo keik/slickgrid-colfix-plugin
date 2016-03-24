@@ -4,6 +4,7 @@
   "description": "SlickGrid plugin to make fixed columns for horizontal scroll.",
   "main": "dist/slick.colfix.js",
   "scripts": {
+    "test": "make test",
     "version": "make build && git add ."
   },
   "repository": {
