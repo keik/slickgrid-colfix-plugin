@@ -26,6 +26,9 @@
     "url": "https://github.com/keik/slickgrid-colfix-plugin/issues"
   },
   "homepage": "https://github.com/keik/slickgrid-colfix-plugin#readme",
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "babelify": "^6.2.0",
     "bluebird": "^2.10.2",
