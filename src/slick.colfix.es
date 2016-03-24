@@ -5,8 +5,6 @@
  * @license MIT
  */
 
-import 'es5-shim';
-
 // register namespace
 $.extend(true, window, {
   Slick: {
