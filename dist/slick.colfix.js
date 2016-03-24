@@ -1829,7 +1829,7 @@ if (String(/a/mig) !== '/a/gim') {
 },{}],2:[function(require,module,exports){
 /**
  * https://github.com/keik/slickgrid-colfix-plugin
- * @version v0.2.3
+ * @version v0.2.4
  * @author keik <k4t0.kei@gmail.com>
  * @license MIT
  */
@@ -2033,12 +2033,7 @@ function ColFix(fixedColId) {
     };
 
     _origGrid.getCellFromEvent = function () {
-      var tmp = _fixedColGrid.getCellFromEvent.apply(_fixedColGrid, arguments);
-      if (!tmp) {
-        tmp = _mainGrid.getCellFromEvent.apply(_fixedColGrid, arguments);
-        tmp.cell += _partIndex;
-      }
-      return tmp;
+      return _fixedColGrid.getCellFromEvent.apply(_fixedColGrid, arguments) || _mainGrid.getCellFromEvent.apply(_mainGrid, arguments);
     };
 
     _origGrid.editActiveCell = function () {

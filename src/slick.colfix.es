@@ -208,12 +208,8 @@ function ColFix(fixedColId) {
     };
 
     _origGrid.getCellFromEvent = function() {
-      let tmp = _fixedColGrid.getCellFromEvent.apply(_fixedColGrid, arguments);
-      if (!tmp) {
-        tmp = _mainGrid.getCellFromEvent.apply(_fixedColGrid, arguments);
-        tmp.cell += _partIndex;
-      }
-      return tmp;
+      return _fixedColGrid.getCellFromEvent.apply(_fixedColGrid, arguments) ||
+        _mainGrid.getCellFromEvent.apply(_mainGrid, arguments);
     };
 
     _origGrid.editActiveCell = function() {

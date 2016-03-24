@@ -25,19 +25,21 @@
     "tests",
     "package.json",
     "screenshots",
-    "examples"
+    "examples",
+    "images",
+    "Makefile"
   ],
   "devDependencies": {
     "slickgrid": "https://github.com/mleibman/SlickGrid.git#2.1.0"
   },
-  "version": "1.0.2",
-  "_release": "1.0.2",
+  "version": "1.1.2",
+  "_release": "1.1.2",
   "_resolution": {
     "type": "version",
-    "tag": "v1.0.2",
-    "commit": "d75d5b8d446d10a0f7725ea004c97e2af84d82dc"
+    "tag": "v1.1.2",
+    "commit": "e560285e09c0dac3825ad987b4913db2cb969ed6"
   },
-  "_source": "git://github.com/keik/slickgrid-colgroup-plugin.git",
-  "_target": "~1.0.2",
+  "_source": "https://github.com/keik/slickgrid-colgroup-plugin.git",
+  "_target": "~1.1.2",
   "_originalSource": "slickgrid-colgroup-plugin"
 }
