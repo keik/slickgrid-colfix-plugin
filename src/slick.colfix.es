@@ -191,7 +191,7 @@ function ColFix(fixedColId) {
       };
     }(_origGrid.destroy));
 
-    ['invalidate', 'invalidateRow', 'invalidateRows', 'invalidateAllRows', 'render', 'updateRow', 'updateRowCount'].forEach(function(fnName) {
+    ['setSelectedRows', 'setSelectionModel', 'invalidate', 'invalidateRow', 'invalidateRows', 'invalidateAllRows', 'render', 'updateRow', 'updateRowCount'].forEach(function(fnName) {
       _origGrid[fnName] = (function(origFn) {
         return function() {
           origFn.apply(_origGrid, arguments);
