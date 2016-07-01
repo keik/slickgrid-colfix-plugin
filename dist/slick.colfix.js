@@ -203,7 +203,15 @@ function ColFix(fixedColId) {
     };
 
     _origGrid.getCellFromEvent = function () {
-      return _fixedColGrid.getCellFromEvent.apply(_fixedColGrid, arguments) || _mainGrid.getCellFromEvent.apply(_mainGrid, arguments);
+      var fixedCell = _fixedColGrid.getCellFromEvent.apply(_fixedColGrid, arguments);
+      if (!fixedCell) {
+        var mainCell = _mainGrid.getCellFromEvent.apply(_mainGrid, arguments);
+        if (mainCell) {
+          mainCell.cell += _partIndex;
+          return mainCell;
+        }
+      }
+      return fixedCell;
     };
 
     _origGrid.editActiveCell = function () {
