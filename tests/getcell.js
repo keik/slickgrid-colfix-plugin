@@ -5,7 +5,7 @@ var assert = chai.assert;
 
 var grid;
 
-describe('getcell', function() {
+describe('Get cell', function() {
 
   before(function() {
 
@@ -28,10 +28,29 @@ describe('getcell', function() {
       enableColumnReorder: false
     };
 
+    /** data */
+    var data = [];
+    for (var i = 0; i < 500; i++) {
+      data[i] = {
+        id: i,
+        col1: 'col 1-' + i,
+        col2: 'col 2-' + i,
+        col3: 'col 3-' + i,
+        col4: 'col 4-' + i,
+        col5: 'col 5-' + i,
+        col6: 'col 6-' + i,
+        col7: 'col 7-' + i,
+        col8: 'col 8-' + i,
+        col9: 'col 9-' + i
+      };
+    }
+
     var dataView = new Slick.Data.DataView();
 
     /** SlickGrid */
     grid = new Slick.Grid('#my-grid', dataView, columns, options);
+
+    dataView.setItems(data);
 
     // register colfix plguin
     grid.registerPlugin(new Slick.Plugins.ColFix('#'));
@@ -47,13 +66,37 @@ describe('getcell', function() {
     });
   });
 
-  describe('Get cell from illegal event', function() {
-    it('should be null', function() {
+  describe('Grid#getCellFromEvent', function() {
+
+    it('should return null from illegal event', function() {
       var evt = document.createEvent('HTMLEvents');
       evt.initEvent('click', true, true);
 
       var cell = grid.getCellFromEvent(evt);
       assert.equal(cell, null);
     });
+
+    it('should return a cell correctly from fixed (left part) grid', function() {
+      var evt = new Slick.Event();
+
+      // select (0, 0) cell on fixed grid
+      var cellEl_0_0 = document.querySelectorAll('.ui-widget[class*=slickgrid]')[0].querySelector('.slick-cell');
+      evt.target = cellEl_0_0;
+      var cell = grid.getCellFromEvent(evt);
+      assert.equal(cell.row, 0);
+      assert.equal(cell.cell, 0);
+    });
+
+    it('should return a cell correctly from main (right part) grid', function() {
+      var evt = new Slick.Event();
+
+      // select (0, 1) cell on main grid
+      var cellEl_0_0 = document.querySelectorAll('.ui-widget[class*=slickgrid]')[1].querySelector('.slick-cell');
+      evt.target = cellEl_0_0;
+      var cell = grid.getCellFromEvent(evt);
+      assert.equal(cell.row, 0);
+      assert.equal(cell.cell, 1);
+    });
   });
+
 });
