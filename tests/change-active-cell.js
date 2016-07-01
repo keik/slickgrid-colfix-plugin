@@ -76,13 +76,13 @@ describe('Change active cell', function() {
       Promise.resolve().then(function() {
         return new Promise(function(resolve, reject) {
           setTimeout(function() {
-            grid.setActiveCell(0, 2);
+            grid.setActiveCell(1, 0);
             resolve();
           }, 0);
         });
       }).then(function() {
         setTimeout(function() {
-          assert.equal(mainViewportEl.scrollLeft, 0);
+          assert.equal(mainViewportEl.scrollLeft, 300);
           d();
         }, 0);
       });
