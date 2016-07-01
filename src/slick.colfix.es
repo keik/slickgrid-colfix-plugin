@@ -114,12 +114,14 @@ function ColFix(fixedColId) {
         let row = args.row,
             cell = args.cell;
 
-        var viewpoint = _mainGrid.getViewport();
-        var mainCell = _mainGrid.getCellFromPoint(viewpoint.leftPx + 1, 0);
+        var mainGridLeftmostCell = _mainGrid.getCellFromPoint(_mainGrid.getViewport().leftPx + 1, 0);
 
         _activeGrid = cell < _partIndex ? _fixedColGrid : _mainGrid;
         _mainGrid.onActiveCellChanged.unsubscribe(onActiveCellChanged);
-        _mainGrid.setActiveCell(row, _activeGrid === _mainGrid ? cell - _partIndex : mainCell ? mainCell.cell + 1 : 0);
+        _mainGrid.setActiveCell(
+          row, _activeGrid === _mainGrid
+            ? cell - _partIndex : mainGridLeftmostCell
+            ? mainGridLeftmostCell.cell + 1 : 0);
         _mainGrid.onActiveCellChanged.subscribe(onActiveCellChanged);
         _fixedColGrid.onActiveCellChanged.unsubscribe(onActiveCellChanged);
         _fixedColGrid.setActiveCell(row, _activeGrid === _fixedColGrid ? cell : 0);
@@ -209,8 +211,15 @@ function ColFix(fixedColId) {
     };
 
     _origGrid.getCellFromEvent = function() {
-      return _fixedColGrid.getCellFromEvent.apply(_fixedColGrid, arguments) ||
-        _mainGrid.getCellFromEvent.apply(_mainGrid, arguments);
+      var fixedCell = _fixedColGrid.getCellFromEvent.apply(_fixedColGrid, arguments);
+      if (!fixedCell) {
+        var mainCell = _mainGrid.getCellFromEvent.apply(_mainGrid, arguments);
+        if (mainCell) {
+          mainCell.cell += _partIndex;
+          return mainCell;
+        }
+      }
+      return fixedCell;
     };
 
     _origGrid.editActiveCell = function() {
