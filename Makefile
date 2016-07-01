@@ -1,4 +1,4 @@
-MAIN        = src/slick.colfix.es
+MAIN        = src/slick.colfix.js
 DIST        = dist/slick.colfix.js
 
 # main targets
@@ -28,7 +28,7 @@ test: node_modules bower_components
 	@node_modules/.bin/mocha-phantomjs tests/index.html
 
 lint: node_modules
-	@node_modules/.bin/eslint src/*.es
+	@node_modules/.bin/eslint src/*.js
 
 bower_components: bower.json node_modules
 	@node_modules/.bin/bower install
